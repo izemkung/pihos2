@@ -7,6 +7,7 @@ import requests
 from gps import *
 from time import *
 import time
+import serial
 import threading
 import RPi.GPIO as GPIO ## Import GPIO library
 
@@ -40,11 +41,20 @@ pic_url = ConfigSectionMap('Profile')['pic_api']
 
 gpsd = None #seting the global variable
 
- 
+ser = serial.Serial
+(
+  port='/dev/ttyUSB2',
+  baudrate = 115200,
+  parity=serial.PARITY_NONE,
+  stopbits=serial.STOPBITS_ONE,
+  bytesize=serial.EIGHTBITS,
+  timeout=1
+) 
+ser.write('AT+QGPS=1\n')
 os.system('clear') #clear the terminal (optional)
 os.system('sudo systemctl stop gpsd.socket')
 os.system('sudo systemctl disable gpsd.socket')
-os.system('sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock')
+os.system('sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock')
 os.system('sudo systemctl enable gpsd.socket')
 os.system('sudo systemctl start gpsd.socket')
 

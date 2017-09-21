@@ -15,7 +15,7 @@ import subprocess
 vercurrent = subprocess.check_output('git rev-parse --verify HEAD', shell=True)
 print 'Cur ver ' + vercurrent
 
-vergit =  subprocess.check_output('git ls-remote https://github.com/izemkung/pihos | head -1 | cut -f 1', shell=True)
+vergit =  subprocess.check_output('git ls-remote https://github.com/izemkung/pihos2 | head -1 | cut -f 1', shell=True)
 print 'Git ver '+ vergit
 if vergit == vercurrent :
     print "version FW Ok!!!"   
@@ -24,7 +24,7 @@ if vergit != vercurrent and len(vercurrent) == len(vergit):
     if os.path.exists("/home/pi/tmp") == True:
         print subprocess.check_output('sudo rm -rf /home/pi/tmp', shell=True) 
         time.sleep(10)   
-    print subprocess.check_output('sudo git clone https://github.com/izemkung/pihos /home/pi/tmp', shell=True)
+    print subprocess.check_output('sudo git clone https://github.com/izemkung/pihos2 /home/pi/tmp', shell=True)
     time.sleep(10)
     if os.path.exists("/home/pi/tmp") == True:
         print subprocess.check_output('sudo rm -rf /home/pi/pihos', shell=True)
