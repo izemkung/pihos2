@@ -42,10 +42,10 @@ pic_url = ConfigSectionMap('Profile')['pic_api']
 gpsd = None #seting the global variable
 
 ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
-ser.write('AT+QGPS=1\n')
-ser.write('AT+QGPS=1\n')
+ser.write('AT+QGPS=1\r')
 
 os.system('clear') #clear the terminal (optional)
+os.system('sudo chmod +x connect.sh')
 os.system('sudo systemctl stop gpsd.socket')
 os.system('sudo systemctl disable gpsd.socket')
 os.system('sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock')
@@ -138,6 +138,7 @@ if __name__ == '__main__':
     GPIO.output(27,False)
     GPIO.output(22,False)
     GPIO.cleanup()
+    exit()
 
   print "Done.\nExiting."
   gpsp.running = False
