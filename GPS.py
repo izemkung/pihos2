@@ -43,9 +43,11 @@ gpsd = None #seting the global variable
 
 ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
 ser.write('AT+QGPS=1\r')
+ser.write('AT+QGPS=1\r')
+
 
 os.system('clear') #clear the terminal (optional)
-os.system('sudo chmod +x connect.sh')
+os.system('sudo chmod +x /home/pi/pihos/connect.sh')
 os.system('sudo systemctl stop gpsd.socket')
 os.system('sudo systemctl disable gpsd.socket')
 os.system('sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock')
