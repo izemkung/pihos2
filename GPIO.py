@@ -67,7 +67,7 @@ def GetSIDFun(message):
 
         for num in range(0, 10):
             bufsid = ser.readline()
-            if(len(bufsid) > 20):
+            if len(bufsid) >= 20 :
                 break
 
         replacements = (',', '\r', '\n', '?')
@@ -80,7 +80,7 @@ def GetSIDFun(message):
         time.sleep(1)
         for num in range(0, 10):
             bufemi = ser.readline()
-            if(len(bufemi) > 10):
+            if len(bufemi) >= 10 :
                 break
 
         replacements = (',', '\r', '\n', '?')
@@ -89,10 +89,7 @@ def GetSIDFun(message):
         emi = bufemi.split(" ")
         print emi
         IMEI = emi[0]
-        print SID
-        print len(SID)
-        print IMEI
-        print len(IMEI)
+        
     except:
         print SID
         print IMEI
@@ -163,12 +160,16 @@ SID = "null"
 IMEI = "null"
 
 while True:
-    if(sendStart == False) :
-        if(internet_on() == True ) and (len(SID) > 13):  
+    if sendStart == False  :
+        if internet_on() == True and len(SID) >= 13 :  
             if(SendStatusFun('Power On') == True):
                 sendStart = True
-    if(len(SID) < 13):
-        GetSIDFun('msg')  
+    if len(SID) <=  13 :
+        GetSIDFun('msg')
+        print SID
+        print len(SID)
+        print IMEI
+        print len(IMEI)  
 
     if(GPIO.input(4) == 0):
         print('Power Off')
