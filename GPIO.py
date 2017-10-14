@@ -46,12 +46,15 @@ def SendStatusFun(message):
         ip = get_ip_address('ppp0') 
         print ip
         print SID
+        print IMEI
         api = nti_url.split("/")
         print api[2]
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID,IMEI,api[2],message), timeout=2.001)
         print ('content     ' + resp.content) 
+        return True
     except:
         print 'SendStatusFun Connection lost'
+    return False
 
 def GetSIDFun(message):
     try:
@@ -83,6 +86,7 @@ def GetSIDFun(message):
         for r in replacements:
             bufemi = bufemi.replace(r, ' ')
         emi = bufemi.split(" ")
+        print emi
         IMEI = emi[1]
 
     except:
@@ -154,8 +158,8 @@ time.sleep(2)
 while True:
     if(sendStart == False) :
         if(internet_on() == True ) and (len(SID) > 13):  
-            SendStatusFun('Power On')
-            sendStart = True
+            if(SendStatusFun('Power On') == True):
+                sendStart = True
     if(len(SID) < 13):
         GetSIDFun("mas")  
 
