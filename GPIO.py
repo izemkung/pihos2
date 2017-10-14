@@ -6,6 +6,8 @@ import requests
 import sys
 import socket
 import serial
+import fcntl
+import struct
 REMOTE_SERVER = "www.google.com"
 
 def internet_on():
@@ -21,6 +23,14 @@ def internet_on():
         pass
     return False
 
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
+
 def SendAlartFun(channel):
     try:
         
@@ -31,16 +41,14 @@ def SendAlartFun(channel):
 
 def SendStatusFun(message):
     try:
-        myvar = ("/sbin/ifconfig ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' '{}'").format(sys.argv[1])
-        ip = os.system(myvar)
+        ip = get_ip_address('ppp0') 
         api = nti_url.split("/")
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID[1],api[2],message), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
         print message
         print id
-        myvar = ("/sbin/ifconfig ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' '{}'").format(sys.argv[1])
-        ip = os.system(myvar)
+        ip = get_ip_address('ppp0') 
         print ip
         print SID[1]
         print api[2]
@@ -114,8 +122,7 @@ bufsid = ser.readline()
 SID = bufsid.split(" ")
 
 print id
-myvar = ("/sbin/ifconfig ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' '{}'").format(sys.argv[1])
-ip = os.system(myvar)
+ip = get_ip_address('ppp0') 
 print ip
 print SID[1]
 print api[2]
