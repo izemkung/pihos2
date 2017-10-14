@@ -170,9 +170,9 @@ while True:
     if sidOk == False :
         GetSIDFun('msg')
         print SID
-        print len(SID)
+        print len(SID[1])
         print IMEI
-        print len(IMEI)  
+        print len(IMEI[0])  
 
     if(GPIO.input(4) == 0):
         print('Power Off')
