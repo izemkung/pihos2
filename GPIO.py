@@ -8,9 +8,10 @@ import socket
 import serial
 import fcntl
 import struct
+
 REMOTE_SERVER = "www.google.com"
-SID = "null"
-IMEI = "null"
+
+
 def internet_on():
     try:
         # see if we can resolve the host name -- tells us if there is
@@ -158,7 +159,8 @@ ser.write('ATE0\r')
 ser.write('ATE0\r')
 time.sleep(2)
 
-        
+SID = "null"
+IMEI = "null"
 
 while True:
     if(sendStart == False) :
