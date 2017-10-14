@@ -27,7 +27,6 @@ def SendAlartFun(channel):
         resp = requests.get(nti_url+'?ambulance_id={0}'.format(id), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
-        print message
         print 'SendAlartFun Connection lost'
 
 def SendStatusFun(message):
@@ -38,6 +37,13 @@ def SendStatusFun(message):
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID[1],api[2],message), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
+        print message
+        print id
+        myvar = ("/sbin/ifconfig ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' '{}'").format(sys.argv[1])
+        ip = os.system(myvar)
+        print ip
+        print SID[1]
+        print api[2]
         print 'SendStatusFun Connection lost'
         
 def ConfigSectionMap(section):
