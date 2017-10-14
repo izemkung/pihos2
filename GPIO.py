@@ -3,15 +3,22 @@ import ConfigParser
 import os
 import time
 import requests
-import urllib2
 import sys
+import socket
+REMOTE_SERVER = "www.google.com"
 
 def internet_on():
     try:
-        urllib2.urlopen('http://216.58.192.142', timeout=1)
+        # see if we can resolve the host name -- tells us if there is
+        # a DNS listening
+        host = socket.gethostbyname(REMOTE_SERVER)
+        # connect to the host -- tells us if the host is actually
+        # reachable
+        s = socket.create_connection((host, 80), 2)
         return True
-    except urllib2.URLError as err: 
-        return False
+    except:
+        pass
+    return False
 
 def SendAlartFun(channel):
     try:
@@ -86,9 +93,10 @@ sendStart = False
 
 
 while True:
-    if(internet_on() == True ) and (sendStart == False) :  
-        SendStatusFun('Power On')
-        sendStart = True
+    if(sendStart == False) :
+        if(internet_on() == True ):  
+            SendStatusFun('Power On')
+            sendStart = True
 
     if(GPIO.input(4) == 0):
         print('Power Off')
