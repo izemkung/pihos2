@@ -78,6 +78,7 @@ if __name__ == '__main__':
     gpsp.start() # start it up
     countSend = 0
     countError = 0
+    timeout = time.time() + 600
     while True:
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
@@ -89,7 +90,11 @@ if __name__ == '__main__':
       print 'latitude    ' , gpsd.fix.latitude
       print 'longitude   ' , gpsd.fix.longitude
       print 'time utc    ' , gpsd.utc,' + ', gpsd.fix.time
-      print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed)
+      print 'Heading     ' , gpsc.fix.track,'deg (true)'
+      #print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed)
+            
+      print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsc.fix.track)
+      
       
       if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
         GPIO.output(22,True)
@@ -99,7 +104,9 @@ if __name__ == '__main__':
           #print 'headers     ' , resp.headers
           print 'content     ' , resp.content
           countError = 0
+          timeout = time.time() + 600 #timeout reset
           GPIO.output(27,True)
+          
         except:
           print 'ConnectionError'
           time.sleep(1)
@@ -111,6 +118,16 @@ if __name__ == '__main__':
 		
       GPIO.output(22,False)
       time.sleep(0.95) #set to whatever
+      
+      if time.time() > timeout:
+        print "Timeout"
+        loopToggle = 10
+        while(loopToggle-->=0):
+          time.sleep(0.2)
+          GPIO.output(17,True)
+          time.sleep(0.2)
+          GPIO.output(17,False)
+          break
 
 	  
       
