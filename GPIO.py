@@ -57,7 +57,8 @@ def SendStatusFun(message):
         print 'SendStatusFun Connection lost'
     return False
 
-def GetSIDFun(message):
+def GetSIDFun():
+    global SID,IMEI
     try:
         ser.flushInput()
         ser.flushOutput()
@@ -158,8 +159,8 @@ ser.write('ATE0\r')
 ser.write('ATE0\r')
 time.sleep(2)
 
-SID = ['null','null']
-IMEI = ['null','null']
+global SID = ['null','null']
+global IMEI = ['null','null']
 
 while True:
     if sendStart == False  :
