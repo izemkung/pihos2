@@ -87,9 +87,11 @@ def GetSIDFun(message):
             bufemi = bufemi.replace(r, ' ')
         emi = bufemi.split(" ")
         print emi
-        IMEI = emi[1]
+        IMEI = emi[0]
 
     except:
+        print SID
+        print IMEI
         print 'Get SID Error'
         
 def ConfigSectionMap(section):
@@ -161,7 +163,7 @@ while True:
             if(SendStatusFun('Power On') == True):
                 sendStart = True
     if(len(SID) < 13):
-        GetSIDFun("mas")  
+        GetSIDFun('msg')  
 
     if(GPIO.input(4) == 0):
         print('Power Off')
