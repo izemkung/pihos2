@@ -41,6 +41,28 @@ def SendAlartFun(channel):
 
 def SendStatusFun(message):
     try:
+        ser.flushInput()
+        ser.flushOutput()
+        time.sleep(2)
+        ser.write('AT+QCCID\r')
+        time.sleep(2)
+
+        for num in range(0, 5):
+            bufsid = ser.readline()
+            if(len(bufsid) > 15):
+                break
+
+        replacements = (',', '\r', '\n', '?')
+        for r in replacements:
+            bufsid = bufsid.replace(r, ' ')
+        SID = bufsid.split(" ")
+
+        print id
+        ip = get_ip_address('ppp0') 
+        print ip
+        print SID
+        api = nti_url.split("/")
+        print api[2]
         ip = get_ip_address('ppp0') 
         api = nti_url.split("/")
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID[1],api[2],message), timeout=2.001)
@@ -108,28 +130,7 @@ ser.write('AT+QGPS=1\r')
 ser.write('ATE0\r')
 ser.write('ATE0\r')
 time.sleep(2)
-ser.flushInput()
-ser.flushOutput()
-time.sleep(2)
-ser.write('AT+QCCID\r')
-time.sleep(2)
 
-for num in range(0, 5):
-    bufsid = ser.readline()
-    if(len(bufsid) > 10):
-        break
-
-replacements = (',', '\r', '\n', '?')
-for r in replacements:
-    bufsid = bufsid.replace(r, ' ')
-SID = bufsid.split(" ")
-
-print id
-ip = get_ip_address('ppp0') 
-print ip
-print SID
-api = nti_url.split("/")
-print api[2]
         
 
 while True:
