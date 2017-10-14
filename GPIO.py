@@ -34,6 +34,11 @@ def SendStatusFun(message):
         myvar = ("/sbin/ifconfig ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' '{}'").format(sys.argv[1])
         ip = os.system(myvar)
         api = nti_url.split("/")
+        print id
+        print ip
+        print SID[1]
+        print api[2]
+        print message
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID[1],api[2],message), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
