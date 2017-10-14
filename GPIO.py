@@ -43,23 +43,6 @@ def SendAlartFun(channel):
 
 def SendStatusFun(message):
     try:
-        print id
-        ip = get_ip_address('ppp0') 
-        print ip
-        print SID
-        print IMEI
-        api = nti_url.split("/")
-        print api[2]
-        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=2.001)
-        print ('content     ' + resp.content) 
-        return True
-    except:
-        print 'SendStatusFun Connection lost'
-    return False
-
-def GetSIDFun():
-    global SID,IMEI
-    try:
         ser.flushInput()
         ser.flushOutput()
         time.sleep(2)
@@ -92,10 +75,26 @@ def GetSIDFun():
         print IMEI
         #IMEI = emi[0]
         sidOk = True
-    except:
+        
+        print id
+        ip = get_ip_address('ppp0') 
+        print ip
         print SID
         print IMEI
-        print 'Get SID Error'
+        api = nti_url.split("/")
+        print api[2]
+
+        if len(SID[1]) <= 13:
+            return False
+
+        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=2.001)
+        print ('content     ' + resp.content) 
+        return True
+    except:
+        print 'SendStatusFun Connection lost'
+    return False
+
+
         
 def ConfigSectionMap(section):
     dict1 = {}
@@ -149,7 +148,6 @@ GPIO.setup(4, GPIO.IN) # Power
 GPIO.add_event_detect(3, GPIO.RISING, callback=SendAlartFun, bouncetime=100)
 
 sendStart = False
-sidOk = False
 
 time.sleep(2)
 ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
@@ -159,21 +157,13 @@ ser.write('ATE0\r')
 ser.write('ATE0\r')
 time.sleep(2)
 
-global SID = ['null','null']
-global IMEI = ['null','null']
 
 while True:
     if sendStart == False  :
-        if internet_on() == True and sidOk == True :  
+        if internet_on() == True :  
             if(SendStatusFun('Power On') == True):
                 sendStart = True
-    if sidOk == False :
-        GetSIDFun('msg')
-        print SID
-        print len(SID[1])
-        print IMEI
-        print len(IMEI[0])  
-
+   
     if(GPIO.input(4) == 0):
         print('Power Off')
         SendStatusFun('Power Off')
