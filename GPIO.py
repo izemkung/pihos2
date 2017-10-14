@@ -50,8 +50,9 @@ def SendStatusFun(message):
         print id
         ip = get_ip_address('ppp0') 
         print ip
-        print SID[1]
-        print api[2]
+        print SID
+        api = nti_url.split("/")
+        print api
         print 'SendStatusFun Connection lost'
         
 def ConfigSectionMap(section):
@@ -124,8 +125,9 @@ SID = bufsid.split(" ")
 print id
 ip = get_ip_address('ppp0') 
 print ip
-print SID[1]
-print api[2]
+print SID
+api = nti_url.split("/")
+print api
         
 
 while True:
