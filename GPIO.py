@@ -3,13 +3,33 @@ import ConfigParser
 import os
 import time
 import requests
+import urllib2
+import sys
+
+def internet_on():
+    try:
+        urllib2.urlopen('http://216.58.192.142', timeout=1)
+        return True
+    except urllib2.URLError as err: 
+        return False
 
 def SendAlartFun(channel):
     try:
+        
         resp = requests.get(nti_url+'?ambulance_id={0}'.format(id), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
         print 'SendAlartFun Connection lost'
+
+def SendStatusFun(message):
+    try:
+        myvar = ("/sbin/ifconfig ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' '{}'").format(sys.argv[1])
+        ip = os.system(myvar)
+        api = nti_url.split("/")
+        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&api={2}&msg={3}'.format(id,ip,api[2],message), timeout=2.001)
+        print ('content     ' + resp.content) 
+    except:
+        print 'SendStatusFun Connection lost'
         
 def ConfigSectionMap(section):
     dict1 = {}
@@ -62,10 +82,19 @@ GPIO.setup(4, GPIO.IN) # Power
 
 GPIO.add_event_detect(3, GPIO.RISING, callback=SendAlartFun, bouncetime=100)
 
+sendStart = False
+
+
 while True:
+    if(internet_on() == True ) and (sendStart == False) :  
+        SendStatusFun('Power On')
+        sendStart = True
+
     if(GPIO.input(4) == 0):
         print('Power Off')
+        SendStatusFun('Power Off')
         time.sleep(10)
+        
         os.system('sudo shutdown -h now')
         break
 GPIO.cleanup()

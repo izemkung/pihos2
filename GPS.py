@@ -122,7 +122,8 @@ if __name__ == '__main__':
       if time.time() > timeout:
         print "Timeout"
         loopToggle = 10
-        while(loopToggle-->=0):
+        while(loopToggle>=0):
+          loopToggle -= 1
           time.sleep(0.2)
           GPIO.output(17,True)
           time.sleep(0.2)
