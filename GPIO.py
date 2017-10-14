@@ -88,7 +88,10 @@ def GetSIDFun(message):
         emi = bufemi.split(" ")
         print emi
         IMEI = emi[0]
-
+        print SID
+        print len(SID)
+        print IMEI
+        print len(IMEI)
     except:
         print SID
         print IMEI
