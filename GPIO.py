@@ -114,7 +114,14 @@ time.sleep(2)
 ser.write('AT+QCCID\r')
 time.sleep(2)
 
-bufsid = ser.readline()
+for num in range(0, 5):
+    bufsid = ser.readline()
+    if(len(bufsid) > 10):
+        break
+
+replacements = (',', '\r', '\n', '?')
+for r in replacements:
+    my_str = my_str.replace(r, ' ')
 SID = bufsid.split(" ")
 
 print id
