@@ -163,6 +163,7 @@ while True:
         if internet_on() == True :  
             if(SendStatusFun('Power On') == True):
                 sendStart = True
+                print sendStart
    
     if(GPIO.input(4) == 0):
         print('Power Off')
