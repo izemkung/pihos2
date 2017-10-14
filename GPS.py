@@ -7,7 +7,6 @@ import requests
 from gps import *
 from time import *
 import time
-import serial
 import threading
 import RPi.GPIO as GPIO ## Import GPIO library
 
@@ -40,10 +39,6 @@ gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
 
 gpsd = None #seting the global variable
-
-ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
-ser.write('AT+QGPS=1\r')
-ser.write('AT+QGPS=1\r')
 
 
 os.system('clear') #clear the terminal (optional)

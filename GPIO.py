@@ -5,6 +5,7 @@ import time
 import requests
 import sys
 import socket
+import serial
 REMOTE_SERVER = "www.google.com"
 
 def internet_on():
@@ -33,7 +34,7 @@ def SendStatusFun(message):
         myvar = ("/sbin/ifconfig ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}' '{}'").format(sys.argv[1])
         ip = os.system(myvar)
         api = nti_url.split("/")
-        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&api={2}&msg={3}'.format(id,ip,api[2],message), timeout=2.001)
+        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID[1],api[2],message), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
         print 'SendStatusFun Connection lost'
@@ -91,7 +92,19 @@ GPIO.add_event_detect(3, GPIO.RISING, callback=SendAlartFun, bouncetime=100)
 
 sendStart = False
 
+time.sleep(2)
+ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
+ser.write('AT+QGPS=1\r')
+ser.write('AT+QGPS=1\r')
+ser.write('ATE0\r')
+ser.write('ATE0\r')
+time.sleep(2)
+ser.flushInput()
+ser.write('AT+QCCID\r')
+time.sleep(2)
 
+bufsid = ser.readline()
+SID = bufsid.split(" ")
 while True:
     if(sendStart == False) :
         if(internet_on() == True ):  
