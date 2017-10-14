@@ -9,7 +9,7 @@ import serial
 import fcntl
 import struct
 REMOTE_SERVER = "www.google.com"
-
+SID = "null"
 def internet_on():
     try:
         # see if we can resolve the host name -- tells us if there is
@@ -41,34 +41,37 @@ def SendAlartFun(channel):
 
 def SendStatusFun(message):
     try:
-        ser.flushInput()
-        ser.flushOutput()
-        time.sleep(2)
-        ser.write('AT+QCCID\r')
-        time.sleep(2)
-
-        for num in range(0, 5):
-            bufsid = ser.readline()
-            if(len(bufsid) > 15):
-                break
-
-        replacements = (',', '\r', '\n', '?')
-        for r in replacements:
-            bufsid = bufsid.replace(r, ' ')
-        SID = bufsid.split(" ")
-
         print id
         ip = get_ip_address('ppp0') 
         print ip
         print SID
         api = nti_url.split("/")
         print api[2]
-        ip = get_ip_address('ppp0') 
-        api = nti_url.split("/")
-        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID[1],api[2],message), timeout=2.001)
+        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID,api[2],message), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
         print 'SendStatusFun Connection lost'
+
+def GetSIDFun(message):
+    try:
+        ser.flushInput()
+        ser.flushOutput()
+        time.sleep(2)
+        ser.write('AT+QCCID\r')
+        time.sleep(2)
+
+        for num in range(0, 10):
+            bufsid = ser.readline()
+            if(len(bufsid) > 20):
+                break
+
+        replacements = (',', '\r', '\n', '?')
+        for r in replacements:
+            bufsid = bufsid.replace(r, ' ')
+        CID = bufsid.split(" ")
+        SID = CID[1]
+    except:
+        print 'Get SID Error'
         
 def ConfigSectionMap(section):
     dict1 = {}
@@ -135,9 +138,11 @@ time.sleep(2)
 
 while True:
     if(sendStart == False) :
-        if(internet_on() == True ):  
+        if(internet_on() == True ) and (len(SID) > 13):  
             SendStatusFun('Power On')
             sendStart = True
+    if(len(SID) < 13):
+        GetSIDFun("mas")  
 
     if(GPIO.input(4) == 0):
         print('Power Off')
