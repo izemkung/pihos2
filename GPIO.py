@@ -10,6 +10,7 @@ import fcntl
 import struct
 REMOTE_SERVER = "www.google.com"
 SID = "null"
+IMEI = "null"
 def internet_on():
     try:
         # see if we can resolve the host name -- tells us if there is
@@ -47,7 +48,7 @@ def SendStatusFun(message):
         print SID
         api = nti_url.split("/")
         print api[2]
-        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID,api[2],message), timeout=2.001)
+        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID,IMEI,api[2],message), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
         print 'SendStatusFun Connection lost'
@@ -70,6 +71,20 @@ def GetSIDFun(message):
             bufsid = bufsid.replace(r, ' ')
         CID = bufsid.split(" ")
         SID = CID[1]
+        
+        ser.write('AT+GSN\r')
+        time.sleep(1)
+        for num in range(0, 10):
+            bufemi = ser.readline()
+            if(len(bufemi) > 10):
+                break
+
+        replacements = (',', '\r', '\n', '?')
+        for r in replacements:
+            bufemi = bufemi.replace(r, ' ')
+        emi = bufemi.split(" ")
+        IMEI = emi[1]
+
     except:
         print 'Get SID Error'
         
