@@ -121,7 +121,7 @@ for num in range(0, 5):
 
 replacements = (',', '\r', '\n', '?')
 for r in replacements:
-    my_str = my_str.replace(r, ' ')
+    bufsid = bufsid.replace(r, ' ')
 SID = bufsid.split(" ")
 
 print id
