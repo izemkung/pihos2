@@ -46,13 +46,6 @@ def SendStatusFun(message):
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&api={3}&msg={4}'.format(id,ip,SID[1],api[2],message), timeout=2.001)
         print ('content     ' + resp.content) 
     except:
-        print message
-        print id
-        ip = get_ip_address('ppp0') 
-        print ip
-        print SID
-        api = nti_url.split("/")
-        print api
         print 'SendStatusFun Connection lost'
         
 def ConfigSectionMap(section):
@@ -116,6 +109,8 @@ ser.write('ATE0\r')
 ser.write('ATE0\r')
 time.sleep(2)
 ser.flushInput()
+ser.flushOutput()
+time.sleep(2)
 ser.write('AT+QCCID\r')
 time.sleep(2)
 
@@ -127,7 +122,7 @@ ip = get_ip_address('ppp0')
 print ip
 print SID
 api = nti_url.split("/")
-print api
+print api[2]
         
 
 while True:
