@@ -171,7 +171,7 @@ while True:
                 print sendStart
     
     if current_time - startTime > 60*10:
-        SendStatusFun('On {0}'.format(current_time - timeStart))
+        SendStatusFun('On {0:.2f}'.format(current_time - timeStart))
         startTime = current_time
 
     if(GPIO.input(4) == 0):
