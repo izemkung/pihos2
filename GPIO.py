@@ -172,6 +172,7 @@ while True:
     
     if current_time - startTime > 60*timeVDO:
         SendStatusFun('On ' + current_time)
+        startTime = current_time
 
     if(GPIO.input(4) == 0):
         print('Power Off')
