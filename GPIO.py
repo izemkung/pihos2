@@ -159,7 +159,7 @@ time.sleep(2)
 
 current_time = time.time()
 startTime = time.time()
-
+timeStart = time.time()
 while True:
 
     current_time = time.time()
@@ -170,8 +170,8 @@ while True:
                 sendStart = True
                 print sendStart
     
-    if current_time - startTime > 60*timeVDO:
-        SendStatusFun('On ' + current_time)
+    if current_time - startTime > 60*10:
+        SendStatusFun('On {0}'.format(current_time - timeStart))
         startTime = current_time
 
     if(GPIO.input(4) == 0):
