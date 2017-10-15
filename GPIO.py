@@ -45,7 +45,7 @@ def SendStatusFun(message):
     try:
         ser.flushInput()
         ser.flushOutput()
-        time.sleep(2)
+        time.sleep(0.1)
         ser.write('AT+QCCID\r')
         time.sleep(2)
 
@@ -157,14 +157,22 @@ ser.write('ATE0\r')
 ser.write('ATE0\r')
 time.sleep(2)
 
+current_time = time.time()
+startTime = time.time()
 
 while True:
+
+    current_time = time.time()
+
     if sendStart == False  :
         if internet_on() == True :  
-            if(SendStatusFun('Power On') == True):
+            if(SendStatusFun('Power Start') == True):
                 sendStart = True
                 print sendStart
-   
+    
+    if current_time - startTime > 60*timeVDO:
+        SendStatusFun('On ' + current_time)
+
     if(GPIO.input(4) == 0):
         print('Power Off')
         SendStatusFun('Power Off')
