@@ -149,7 +149,7 @@ GPIO.add_event_detect(3, GPIO.RISING, callback=SendAlartFun, bouncetime=100)
 
 sendStart = False
 
-time.sleep(2)
+time.sleep(5)
 ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
 ser.write('AT+QGPS=1\r')
 ser.write('AT+QGPS=1\r')
@@ -160,20 +160,18 @@ time.sleep(2)
 current_time = time.time()
 startTime = time.time()
 timeStart = time.time()
+timeout = time.time() + 60
 while True:
 
     current_time = time.time()
-
+#I/O Power on
     if sendStart == False  :
         if internet_on() == True :  
             if(SendStatusFun('Power Start') == True):
                 sendStart = True
                 print sendStart
-    
-    if current_time - startTime > 60*10:
-        SendStatusFun('On {0:.2f}'.format(current_time - timeStart))
-        startTime = current_time
 
+#I/O Power off
     if(GPIO.input(4) == 0):
         print('Power Off')
         SendStatusFun('Power Off')
@@ -181,4 +179,19 @@ while True:
         
         os.system('sudo shutdown -h now')
         break
+
+#I/O Power off
+    if current_time - startTime > 60*10:
+        SendStatusFun('On {0:.2f}'.format(current_time - timeStart))
+        startTime = current_time
+
+#Ennable GPS
+    if time.time() > timeout:
+        timeout = time.time() + 60
+        ser.write('ATE0\r')
+        ser.write('AT+QGPS=1\r')
+        ser.write('AT+QGPS=1\r')
+        for num in range(0, 5):
+            bufemi = ser.readline()
+
 GPIO.cleanup()

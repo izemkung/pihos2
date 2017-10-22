@@ -123,7 +123,7 @@ if __name__ == '__main__':
           GPIO.output(17,True)
           time.sleep(0.2)
           GPIO.output(17,False)
-          break
+        break
 
 	  
       
