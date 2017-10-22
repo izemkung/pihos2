@@ -9,7 +9,8 @@ from time import *
 import time
 import threading
 import RPi.GPIO as GPIO ## Import GPIO library
-
+import serial
+import time
 import ConfigParser
 def ConfigSectionMap(section):
     dict1 = {}
@@ -40,12 +41,41 @@ pic_url = ConfigSectionMap('Profile')['pic_api']
 
 gpsd = None #seting the global variable
 
+#checking port
+port = 'Error'
+portOk = '/dev/ttyUSB1'
+input2 = 0
+for num in range(0, 4):
+    port = '/dev/ttyUSB{0}'.format(num)
+    try:
+        ser = serial.Serial(port, 115200, timeout=.5)
+        input = ser.inWaiting()
+        print('Checking {0} Data In {1}'.format(port,input))
+        time.sleep(5)
+        input = ser.inWaiting()
+    except:
+        print('Port {0} busy'.format(port))
 
+    try:
+        input2 = 0
+        for count in range(0, 10):
+            inputS = ser.readline()
+            input2 += len(inputS)
+            print(inputS)
+        ser.close()
+    except:
+        print('Port {0} Except'.format(port))
+    print('Checked {0} Data In {1} DataS {2}'.format(port,input,input2))
+    if(input > 200) or (input2 > 50):
+        print('{0} Ok!!!'.format(port))
+        portOk = port
+        break
+time.sleep(10)
 os.system('clear') #clear the terminal (optional)
 os.system('sudo chmod +x /home/pi/pihos/connect.sh')
 os.system('sudo systemctl stop gpsd.socket')
 os.system('sudo systemctl disable gpsd.socket')
-os.system('sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock')
+os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(portOk))
 os.system('sudo systemctl enable gpsd.socket')
 os.system('sudo systemctl start gpsd.socket')
 
@@ -73,7 +103,7 @@ if __name__ == '__main__':
     gpsp.start() # start it up
     countSend = 0
     countError = 0
-    timeout = time.time() + 600
+    timeout = time.time() + 60
     while True:
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
@@ -98,10 +128,15 @@ if __name__ == '__main__':
           #print 'status_code ' , resp.status_code
           #print 'headers     ' , resp.headers
           print 'content     ' , resp.content
-          countError = 0
-          timeout = time.time() + 600 #timeout reset
-          GPIO.output(27,True)
           
+          
+          GPIO.output(27,True)
+          if(resp.status_code == 200 ):
+            countSend+=1
+            countError = 0
+            timeout = time.time() + 60 #timeout reset
+          else:
+            countError+=1
         except:
           print 'ConnectionError'
           time.sleep(1)
@@ -124,6 +159,9 @@ if __name__ == '__main__':
           time.sleep(0.2)
           GPIO.output(17,False)
         break
+      if countError > 20:
+          GPIO.output(27,False)
+          break
 
 	  
       
