@@ -161,9 +161,6 @@ if __name__ == '__main__':
         GPIO.output(27,False)
         break
 
-	  
-      
-	  
 	  #print 'altitude (m)' , gpsd.fix.altitude
       #print 'eps         ' , gpsd.fix.eps
       #print 'epx         ' , gpsd.fix.epx
