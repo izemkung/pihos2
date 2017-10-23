@@ -128,8 +128,6 @@ if __name__ == '__main__':
           #print 'status_code ' , resp.status_code
           #print 'headers     ' , resp.headers
           print 'content     ' , resp.content
-          
-          
           GPIO.output(27,True)
           if(resp.status_code == 200 ):
             countSend+=1
@@ -144,7 +142,7 @@ if __name__ == '__main__':
           if countError > 20:
             GPIO.output(27,False)
             break
-          continue
+          #continue
 		
       GPIO.output(22,False)
       time.sleep(0.95) #set to whatever
