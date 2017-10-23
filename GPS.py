@@ -72,7 +72,9 @@ for num in range(0, 4):
         break
 time.sleep(10)
 os.system('clear') #clear the terminal (optional)
+
 os.system('sudo chmod +x /home/pi/pihos/connect.sh')
+
 os.system('sudo systemctl stop gpsd.socket')
 os.system('sudo systemctl disable gpsd.socket')
 os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(portOk))
@@ -108,14 +110,14 @@ if __name__ == '__main__':
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
       
-      os.system('clear')
-      print
+      #os.system('clear')
+      #print
       print 'GPS sending Seccess ' , countSend ,' Error ', countError  
-      print '----------------------------------------'
-      print 'latitude    ' , gpsd.fix.latitude
-      print 'longitude   ' , gpsd.fix.longitude
-      print 'time utc    ' , gpsd.utc,' + ', gpsd.fix.time
-      print 'Heading     ' , gpsd.fix.track,'deg (true)'
+      #print '----------------------------------------'
+      #print 'latitude    ' , gpsd.fix.latitude
+      #print 'longitude   ' , gpsd.fix.longitude
+      #print 'time utc    ' , gpsd.utc,' + ', gpsd.fix.time
+      #print 'Heading     ' , gpsd.fix.track,'deg (true)'
       #print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed)
             
       print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track)
