@@ -66,7 +66,7 @@ for num in range(0, 4):
     except:
         print('Port {0} Except'.format(port))
     print('Checked {0} Data In {1} DataS {2}'.format(port,input,input2))
-    if(input > 200) or (input2 > 50):
+    if(input > 200) or (input2 > 100):
         print('{0} Ok!!!'.format(port))
         portOk = port
         break
@@ -151,17 +151,15 @@ if __name__ == '__main__':
       
       if time.time() > timeout:
         print "Timeout"
-        loopToggle = 10
-        while(loopToggle>=0):
-          loopToggle -= 1
+        for count in range(0, 5):
           time.sleep(0.2)
           GPIO.output(17,True)
           time.sleep(0.2)
           GPIO.output(17,False)
         break
       if countError > 20:
-          GPIO.output(27,False)
-          break
+        GPIO.output(27,False)
+        break
 
 	  
       
@@ -199,3 +197,4 @@ if __name__ == '__main__':
   GPIO.output(27,False)
   GPIO.output(22,False)
   GPIO.cleanup()
+  exit()

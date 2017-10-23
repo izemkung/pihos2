@@ -152,8 +152,6 @@ sendStart = False
 time.sleep(5)
 ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
 ser.write('AT+QGPS=1\r')
-ser.write('AT+QGPS=1\r')
-ser.write('ATE0\r')
 ser.write('ATE0\r')
 time.sleep(2)
 
@@ -189,7 +187,6 @@ while True:
     if time.time() > timeout:
         timeout = time.time() + 60
         ser.write('ATE0\r')
-        ser.write('AT+QGPS=1\r')
         ser.write('AT+QGPS=1\r')
         for num in range(0, 5):
             bufemi = ser.readline()
