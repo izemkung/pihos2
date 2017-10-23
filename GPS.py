@@ -153,9 +153,9 @@ if __name__ == '__main__':
         print "Timeout"
         for count in range(0, 5):
           time.sleep(0.2)
-          GPIO.output(17,True)
+          GPIO.output(22,True)
           time.sleep(0.2)
-          GPIO.output(17,False)
+          GPIO.output(22,False)
         break
       if countError > 20:
         GPIO.output(27,False)
