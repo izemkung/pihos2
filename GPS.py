@@ -71,7 +71,7 @@ for num in range(0, 4):
         portOk = port
         break
 time.sleep(10)
-os.system('clear') #clear the terminal (optional)
+#os.system('clear') #clear the terminal (optional)
 
 os.system('sudo chmod +x /home/pi/pihos/connect.sh')
 
