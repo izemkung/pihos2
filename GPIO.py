@@ -36,7 +36,7 @@ def get_ip_address(ifname):
 def SendAlartFun(channel):
     try:
         
-        resp = requests.get(nti_url+'?ambulance_id={0}'.format(id), timeout=2.001)
+        resp = requests.get(nti_url+'?ambulance_id={0}'.format(id), timeout=3.001)
         print ('content     ' + resp.content) 
     except:
         print 'SendAlartFun Connection lost'
@@ -87,7 +87,7 @@ def SendStatusFun(message):
         if len(SID[1]) <= 13:
             return False
 
-        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=2.001)
+        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
         print ('content     ' + resp.content) 
         return True
     except:
@@ -172,7 +172,7 @@ while True:
 #I/O Power off
     if(GPIO.input(4) == 0):
         print('Power Off')
-        SendStatusFun('Power Off')
+        SendStatusFun('Power Off {0:.1f} Min'.format((current_time - timeStart)/60)
         time.sleep(10)
         
         os.system('sudo shutdown -h now')
@@ -180,7 +180,7 @@ while True:
 
 #I/O Power off
     if current_time - startTime > 60*10:
-        SendStatusFun('On {0:.2f}'.format(current_time - timeStart))
+        SendStatusFun('On {0:.1f} Min'.format((current_time - timeStart)/60)
         startTime = current_time
 
 #Ennable GPS

@@ -99,7 +99,7 @@ if __name__ == '__main__':
   try:
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(27, GPIO.OUT)#3G
+    #GPIO.setup(27, GPIO.OUT)#3G
     GPIO.setup(22, GPIO.OUT)#GPS
     
     gpsp.start() # start it up
@@ -158,7 +158,13 @@ if __name__ == '__main__':
           GPIO.output(22,False)
         break
       if countError > 20:
-        GPIO.output(27,False)
+        print "countError"
+        for count in range(0, 6):
+          time.sleep(0.1)
+          GPIO.output(22,True)
+          time.sleep(0.1)
+          GPIO.output(22,False)
+        #GPIO.output(27,False)
         break
 
 	  #print 'altitude (m)' , gpsd.fix.altitude
@@ -183,7 +189,7 @@ if __name__ == '__main__':
     print "\nKilling Thread..."
     gpsp.running = False
     gpsp.join() # wait for the thread to finish what it's doing
-    GPIO.output(27,False)
+    #GPIO.output(27,False)
     GPIO.output(22,False)
     GPIO.cleanup()
     exit()
@@ -191,7 +197,7 @@ if __name__ == '__main__':
   print "Done.\nExiting."
   gpsp.running = False
   gpsp.join() # wait for the thread to finish what it's doing
-  GPIO.output(27,False)
+  #GPIO.output(27,False)
   GPIO.output(22,False)
   GPIO.cleanup()
   exit()
