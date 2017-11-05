@@ -172,7 +172,7 @@ while True:
 #I/O Power off
     if(GPIO.input(4) == 0):
         print('Power Off')
-        SendStatusFun('Power Off {0:.1f} Min'.format((current_time - timeStart)/60)
+        SendStatusFun('Power Off {0:.1f} Min'.format((current_time - timeStart)/60))
         time.sleep(10)
         
         os.system('sudo shutdown -h now')
@@ -180,7 +180,7 @@ while True:
 
 #I/O Power off
     if current_time - startTime > 60*10:
-        SendStatusFun('On {0:.1f} Min'.format((current_time - timeStart)/60)
+        SendStatusFun('On {0:.1f} Min'.format((current_time - timeStart)/60))
         startTime = current_time
 
 #Ennable GPS
