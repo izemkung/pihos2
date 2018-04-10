@@ -1,6 +1,9 @@
 import serial
 import time
 
+while True:
+    time.sleep(5)
+    
 port = 'Error'
 for num in range(0, 4):
     port = '/dev/ttyUSB{0}'.format(num)

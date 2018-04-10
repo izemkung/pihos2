@@ -10,6 +10,7 @@ import httplib
 import time
 import RPi.GPIO as GPIO ## Import GPIO library
 import ConfigParser
+import hashlib
 
 def ConfigSectionMap(section):
     dict1 = {}
@@ -27,7 +28,7 @@ def ConfigSectionMap(section):
 if os.path.exists("/home/pi/usb/config.ini") == False:
     print("config.ini error")
     os.system('sudo mount /dev/sda1 ')
-    exit()
+    #exit()
 
 
 os.system('sudo mount -o rw,remount /dev/sda1')
@@ -39,9 +40,19 @@ try:
     os.system('sudo mount /dev/sda1 ')
 except:
     print('Error mount')
+
+if os.path.exists("/home/pi/usb/config.ini") == False:
+    print("usb config.ini error")
+    os.system('sudo mount /dev/sda1 /home/pi/usb/')
+    #exit()
+else:
+    if os.path.exists("/home/pi/config.ini") == True:
+        os.system('sudo rm -rf config.ini')
+    os.system('sudo cp /home/pi/usb/config.ini /home/pi/config.ini')
+
 time.sleep(2)
 Config = ConfigParser.ConfigParser()
-Config.read('/home/pi/usb/config.ini')
+Config.read('/home/pi/config.ini')
 
 id =  ConfigSectionMap('Profile')['id']
 timevdo = ConfigSectionMap('Profile')['timevdo']
@@ -59,12 +70,53 @@ connectionError = 0
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM) ## Use board pin numbering
 GPIO.setup(17, GPIO.OUT)#Rec
-GPIO.setup(27, GPIO.OUT)#3G
-  
+#GPIO.setup(27, GPIO.OUT)#3G
+BLOCKSIZE = 65536
+
+timeout = time.time() + 200  
 while True:
     
+
+    hasher1 = hashlib.md5()
+    hasher2 = hashlib.md5()
+    with open('/home/pi/config.ini', 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher1.update(buf)
+            buf = afile.read(BLOCKSIZE)
+    print(hasher1.hexdigest())
+
+    with open('/home/pi/usb/config.ini', 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher2.update(buf)
+            buf = afile.read(BLOCKSIZE)
+    print(hasher2.hexdigest())
+
+    info1 = os.stat('/home/pi/config.ini')
+    info2 = os.stat('/home/pi/usb/config.ini')
+    #print info1.st_mtime
+    #print info2.st_mtime
+    #fileConfig1 = max(glob.iglob('/home/pi/config.ini'), key=os.path.getctime)
+    #fileConfig2 = max(glob.iglob('/home/pi/usb/config.ini'), key=os.path.getctime)
+
+    if hasher1.hexdigest() !=  hasher2.hexdigest():
+        os.system('sudo rm -rf /home/pi/config.ini')
+        os.system('sudo cp /home/pi/usb/config.ini /home/pi/config.ini')
+        #os.system('sudo rm -rf /home/pi/usb/config.ini')
+        #os.system('sudo cp /home/pi/config.ini /home/pi/usb/config.ini')
+        print "New File Config"
+    else :
+        print "File Config Ok"
+    time.sleep(5)
+    #GPIO.output(17,False)
+    if time.time() > timeout:
+        print "Timeout"
+        break
+
+'''
     timeout = time.time() + 10
-    
+
     newpic1 = max(glob.iglob('/home/pi/usb/pic/ch1/*.[Jj][Pp][Gg]'), key=os.path.getctime)
     newpic0 = max(glob.iglob('/home/pi/usb/pic/ch0/*.[Jj][Pp][Gg]'), key=os.path.getctime)
 
@@ -109,7 +161,7 @@ while True:
         print "Timeout"
         print countPic
         break
-
+'''
 GPIO.output(17,False) 
-GPIO.setup(27,False)  
+#GPIO.setup(27,False)  
 GPIO.cleanup()
