@@ -35,7 +35,6 @@ def get_ip_address(ifname):
 
 def SendAlartFun(channel):
     try:
-        
         resp = requests.get(nti_url+'?ambulance_id={0}'.format(id), timeout=3.001)
         print ('content     ' + resp.content) 
     except:
@@ -109,12 +108,70 @@ def ConfigSectionMap(section):
             dict1[option] = None
     return dict1
 
+
+print "Start GPIO"
+time.sleep(5)
+ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
+ser.flushInput()
+ser.flushOutput()
+ser.write('AT+GSN\r')
+time.sleep(1)
+for num in range(0, 10):
+    bufemi = ser.readline()
+    if len(bufemi) >= 10 :
+        break
+
+replacements = (',', '\r', '\n', '?')
+for r in replacements:
+    bufemi = bufemi.replace(r, ' ')
+IMEI = bufemi.split(" ")
+print IMEI[0]
+
+ser.write('AT+QGPS=1\r')
+ser.write('ATE0\r')
+time.sleep(2)
+resp = requests.get('http://188.166.197.107/Config_API.php?IMEI=861075028784957')
+print resp.json()['API_NTI']
+
+#{u'VERSION': u'72b1d9e5ef932f91e17b603f0cc0492cafa4a5db', u'TIME_PIC': u'0', u'CRASH_GAIN': u'10', u'REPO': u'pihos2', u'NUM': u'1',
+# u'API_PIC': u'http://safetyam.tely360.com/api/upload.php', u'TIME_GPS': u'1', u'IMEI': u'861075028784957',  
+# u'API_NTI': u'http://safetyam.tely360.com/api/notification.php', u'ID': u'99', u'API_GPS': u'http://safetyam.tely360.com/api/tracking.php', u'TIME_VDO': u'10'}
+#id: 99
+#timevdo: 10
+#timepic: 1
+#gps_api: http://safetyam.tely360.com/api/tracking.php
+#pic_api: http://safetyam.tely360.com/api/upload.php
+#nti_api: http://safetyam.tely360.com/api/notification.php
+
+#if os.path.exists("config.ini") == False  :
+#print("local config.ini error")
+#print("load config.ini")
+#if internet_on() == True :
+#    resp = requests.get('http://188.166.197.107/Config_API.php?IMEI={0}'.format(IMEI[0]))
+#    if os.path.exists("config.ini") == False  :
+#        os.system('sudo touch /home/pi/config.ini')
+#    with open("/home/pi/config.ini", "r+") as f:
+#        f.seek(0) # rewind
+#        f.write("[Profile]")
+#        f.write("\r\nid : " + resp.json()['ID'])
+#        f.write("\r\ntimevdo : " + resp.json()['TIME_VDO'])
+#        f.write("\r\ntimepic : " + resp.json()['TIME_PIC'])
+#        f.write("\r\ngps_api : " + resp.json()['API_GPS'])
+#        f.write("\r\nnti_api : " + resp.json()['API_NTI'])
+#        f.write("\r\pic_api : " + resp.json()['API_PIC'])
+#        f.close()
+#else: 
+    #print("load config.ini internet Error")
+'''       
 if os.path.exists("/home/pi/usb/config.ini") == False:
-    print("config.ini error")
+    print("usb config.ini error")
     os.system('sudo mount /dev/sda1 /home/pi/usb/')
     exit()
-
-
+else:
+    if os.path.exists("/home/pi/config.ini") == True:
+        os.system('sudo rm -rf config.ini')
+    os.system('sudo mv /home/pi/usb/config.ini /home/pi/config.ini')
+'''
 #if os.path.exists("/home/pi/usb/pic") == True:
 #    print("Delete Pic Foder!!!")
     #os.system('sudo mount /dev/sda1 /mnt/usbdrive')
@@ -133,12 +190,16 @@ if os.path.exists("/home/pi/usb/config.ini") == False:
     
        
 Config = ConfigParser.ConfigParser()
-Config.read('/home/pi/usb/config.ini')
+Config.read('/home/pi/config.ini')
 
 id =  ConfigSectionMap('Profile')['id']
+print id
 timevdo = ConfigSectionMap('Profile')['timevdo']
+print timevdo
 timepic = ConfigSectionMap('Profile')['timepic']
+print timepic
 nti_url = ConfigSectionMap('Profile')['nti_api']
+print nti_url
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM) ## Use board pin numbering
@@ -148,12 +209,6 @@ GPIO.setup(4, GPIO.IN) # Power
 GPIO.add_event_detect(3, GPIO.RISING, callback=SendAlartFun, bouncetime=100)
 
 sendStart = False
-
-time.sleep(5)
-ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
-ser.write('AT+QGPS=1\r')
-ser.write('ATE0\r')
-time.sleep(2)
 
 current_time = time.time()
 startTime = time.time()
@@ -178,7 +233,7 @@ while True:
         os.system('sudo shutdown -h now')
         break
 
-#I/O Power off
+#On line status
     if current_time - startTime > 60*10:
         SendStatusFun('On {0:.1f} Min'.format((current_time - timeStart)/60))
         startTime = current_time
@@ -190,5 +245,5 @@ while True:
         ser.write('AT+QGPS=1\r')
         for num in range(0, 5):
             bufemi = ser.readline()
-
+        print "Set Starting GPS"    
 GPIO.cleanup()

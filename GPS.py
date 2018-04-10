@@ -25,13 +25,9 @@ def ConfigSectionMap(section):
             dict1[option] = None
     return dict1
 
-if os.path.exists("/home/pi/usb/config.ini") == False:
-    print("config.ini error")
-    os.system('sudo mount /dev/sda1 /home/pi/usb/')
-    exit()
     
 Config = ConfigParser.ConfigParser()
-Config.read('/home/pi/usb/config.ini')
+Config.read('/home/pi/config.ini')
 
 id =  ConfigSectionMap('Profile')['id']
 timevdo = ConfigSectionMap('Profile')['timevdo']
@@ -95,6 +91,7 @@ class GpsPoller(threading.Thread):
       gpsd.next() #this will continue to loop and grab EACH set of gpsd info to clear the buffer
  
 if __name__ == '__main__':
+  global gpsd
   gpsp = GpsPoller() # create the thread
   try:
     GPIO.setwarnings(False)
@@ -105,7 +102,7 @@ if __name__ == '__main__':
     gpsp.start() # start it up
     countSend = 0
     countError = 0
-    timeout = time.time() + 30
+    timeout = time.time() + 120
     while True:
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
@@ -126,23 +123,24 @@ if __name__ == '__main__':
       if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
         GPIO.output(22,True)
         try:
-          resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed), timeout=1.001)
-          #print 'status_code ' , resp.status_code
+          resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track))
+          print 'status_code ' , resp.status_code
           #print 'headers     ' , resp.headers
           print 'content     ' , resp.content
-          GPIO.output(27,True)
+          #GPIO.output(27,True)
           if(resp.status_code == 200 ):
-            countSend+=1
+            countSend += 1
             countError = 0
             timeout = time.time() + 30 #timeout reset
           else:
+            print 'respError'
             countError+=1
         except:
-          print 'ConnectionError'
+          print 'exceptError'
           time.sleep(1)
           countError += 1
           if countError > 20:
-            GPIO.output(27,False)
+            #GPIO.output(27,False)
             break
           #continue
 		
