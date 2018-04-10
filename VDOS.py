@@ -219,10 +219,10 @@ while(cap0.isOpened() and cap1.isOpened()):
     ret0, frame0 = cap0.read()
     ret1, frame1 = cap1.read()
     if ret0 == True and ret1 == True:
-        framePic0 = imutils.resize(frame0, w/picResolotion)
-        framePic1 = imutils.resize(frame1, w/picResolotion)
+        
         if current_time - endtime > 10:
-            
+            framePic0 = imutils.resize(frame0, w/picResolotion)
+            framePic1 = imutils.resize(frame1, w/picResolotion)
             cv2.putText(framePic0,"Ambulance "+ str(id) + " id 0"+" {}".format(strftime("%d %b %Y %H:%M:%S")) ,(2,(h/picResolotion) - 5), font, 0.3,(0,255,255),1)    
             cv2.putText(framePic1,"Ambulance "+ str(id) + " id 1"+" {}".format(strftime("%d %b %Y %H:%M:%S")) ,(2,(h/picResolotion) - 5), font, 0.3,(0,255,255),1)    
             
@@ -238,8 +238,8 @@ while(cap0.isOpened() and cap1.isOpened()):
             flagPic = True
             #print("Ok!!!")
         if(flagUSBOk == True):
-            out0.write(framePic0)
-            out1.write(framePic1)    
+            out0.write(frame0)
+            out1.write(frame1)    
 
           
                     #break 
