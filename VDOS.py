@@ -263,3 +263,5 @@ print("Ok!!!")
 GPIO.output(17,False) 
 GPIO.cleanup()
 KillPs = True
+if(t1.isAlive() == True):
+    t1.kill()
