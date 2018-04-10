@@ -156,7 +156,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM) ## Use board pin numbering
 GPIO.setup(4, GPIO.IN) # Power
-GPIO.setup(17,GPIO.OUT)
+GPIO.setup(17,GPIO.OUT) #reg
 
 KillPs = False
 jpg_as_text0 = None
@@ -260,9 +260,10 @@ if(flagUSBOk == True):
     out1.release()
 cap0.release()
 cap1.release()
-print("Ok!!!")
+
 GPIO.output(17,False) 
 GPIO.cleanup()
 KillPs = True
 if(t1.isAlive() == True):
     t1.kill()
+print("End VDOS.py")

@@ -97,8 +97,8 @@ if per < 80 :
     print 'Memmory < 80% Ok!!'
     time.sleep(60)
     
-if per > 50 :    
-    while per > 30 :
+if per > 80 :    
+    while per > 50 :
         OldVideo0 = min(glob.iglob('/home/pi/usb/vdo/ch0/*.[Aa][Vv][Ii]'), key=os.path.getctime)
         OldVideo1 = min(glob.iglob('/home/pi/usb/vdo/ch1/*.[Aa][vv][Ii]'), key=os.path.getctime)
 
