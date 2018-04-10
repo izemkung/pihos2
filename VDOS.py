@@ -105,6 +105,8 @@ print("Camera "+str(args["idcamera"]))
 cap0 = cv2.VideoCapture(0)
 cap1 = cv2.VideoCapture(1)
 
+out0 = None
+out1 = None
 #set the width and height, and UNSUCCESSFULLY set the exposure time
 #Config 
 timeSavePic = args["timepic"]
@@ -136,9 +138,9 @@ print("Vdo:"+str(w)+"x"+str(h) + " Pic:"+str(w/picResolotion)+"x"+str(h/picResol
 vdoname = gmtime()
 
 if(flagUSBOk == True):
-    out0 = cv2.VideoWriter(args["output"]+ 'vdo/ch0'+'/vdo_{}.avi'.format(strftime("%d%m%Y%H%M%S", vdoname)),fourcc, 20.0, (w,h))
-    out1 = cv2.VideoWriter(args["output"]+ 'vdo/ch1'+'/vdo_{}.avi'.format(strftime("%d%m%Y%H%M%S", vdoname)),fourcc, 20.0, (w,h))
-    print(args["output"]+ 'vdo/ch' +str(args["idcamera"]) +'/vdo_{}.avi'.format(strftime("%d%m%Y%H%M%S", vdoname))) 
+    out0 = cv2.VideoWriter('/home/pi/usb/vdo/ch0'+'/vdo_{}.avi'.format(strftime("%d%m%Y%H%M%S", vdoname)),fourcc, 20.0, (w,h))
+    out1 = cv2.VideoWriter('/home/pi/usb/vdo/ch1'+'/vdo_{}.avi'.format(strftime("%d%m%Y%H%M%S", vdoname)),fourcc, 20.0, (w,h))
+    print( 'vdo/chX/vdo_{}.avi'.format(strftime("%d%m%Y%H%M%S", vdoname))) 
 
 #Picture 
 current_time = 0
@@ -217,9 +219,10 @@ while(cap0.isOpened() and cap1.isOpened()):
     ret0, frame0 = cap0.read()
     ret1, frame1 = cap1.read()
     if ret0 == True and ret1 == True:
+        framePic0 = imutils.resize(frame0, w/picResolotion)
+        framePic1 = imutils.resize(frame1, w/picResolotion)
         if current_time - endtime > 10:
-            framePic0 = imutils.resize(frame0, w/picResolotion)
-            framePic1 = imutils.resize(frame1, w/picResolotion)
+            
             cv2.putText(framePic0,"Ambulance "+ str(id) + " id 0"+" {}".format(strftime("%d %b %Y %H:%M:%S")) ,(2,(h/picResolotion) - 5), font, 0.3,(0,255,255),1)    
             cv2.putText(framePic1,"Ambulance "+ str(id) + " id 1"+" {}".format(strftime("%d %b %Y %H:%M:%S")) ,(2,(h/picResolotion) - 5), font, 0.3,(0,255,255),1)    
             
