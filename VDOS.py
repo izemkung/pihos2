@@ -251,7 +251,7 @@ while(cap0.isOpened() and cap1.isOpened()):
         
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-    if (current_time/1000) - startTime > 60:
+    if (current_time/1000) - startTime > 60*timeVDO:
         break 
     if(GPIO.input(4) == 0):
         break
