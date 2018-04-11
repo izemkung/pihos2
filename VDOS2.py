@@ -184,7 +184,7 @@ def myThreadSend ():
     while (KillPs == False):
         current_time_T = time.time() * 1000
         if flagPic == True:
-            if current_time_T - last_time_T > 1000:
+            if current_time_T - last_time_T > 100:
                 flagPic = False
                 last_time_T = current_time_T
                 data = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
@@ -226,7 +226,7 @@ while(cap0.isOpened() and cap1.isOpened()):
 
     if ret0 == True and ret1 == True:
         
-        if current_time - endtime > 400:
+        if current_time - endtime > 100:
             framePic0 = imutils.resize(frame0, w/picResolotion)
             framePic1 = imutils.resize(frame1, w/picResolotion)
             cv2.putText(framePic0,"Ambulance "+ str(id) + " id 0"+" {}".format(strftime("%d %b %Y %H:%M:%S")) ,(2,(h/picResolotion) - 5), font, 0.3,(0,255,255),1)    
