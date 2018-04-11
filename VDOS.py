@@ -98,9 +98,6 @@ else:
 
 os.environ['TZ'] = 'Asia/Bangkok'
 time.tzset()
-
-print("Camera "+str(args["idcamera"])) 
-
     
 cap0 = cv2.VideoCapture(0)
 cap1 = cv2.VideoCapture(1)
@@ -130,10 +127,16 @@ picResolotion = 2
 
 # Define the codec and create VideoWriter object
 fourcc = cv2.cv.CV_FOURCC('D','I','V','X')
-
-ret, frame = cap0.read()
-(h, w) = frame.shape[:2]
-print("Vdo:"+str(w)+"x"+str(h) + " Pic:"+str(w/picResolotion)+"x"+str(h/picResolotion) )
+try:
+    for num in range(0, 10):
+        time.sleep(0.2)
+        ret, frame = cap0.read()
+        if ret == True :
+            (h, w) = frame.shape[:2]
+            print("Vdo:"+str(w)+"x"+str(h) + " Pic:"+str(w/picResolotion)+"x"+str(h/picResolotion) )
+            break
+except:
+    exit()
 
 vdoname = gmtime()
 
@@ -178,7 +181,7 @@ def myThreadSend ():
         GPIO.output(17,True)
         time.sleep(0.2)
         GPIO.output(17,False)
-    while (KillPs == False): 
+    while (KillPs == False):
         current_time_T = time.time() * 1000
         if flagPic == True:
             if current_time_T - last_time_T > 1000:
@@ -215,12 +218,15 @@ t1.start()
 while(cap0.isOpened() and cap1.isOpened()):
     GPIO.output(17,False)
     current_time = time.time() * 1000
- 
     ret0, frame0 = cap0.read()
     ret1, frame1 = cap1.read()
+    if(flagUSBOk == True):
+        out0.write(frame0)
+        out1.write(frame1)
+
     if ret0 == True and ret1 == True:
         
-        if current_time - endtime > 10:
+        if current_time - endtime > 400:
             framePic0 = imutils.resize(frame0, w/picResolotion)
             framePic1 = imutils.resize(frame1, w/picResolotion)
             cv2.putText(framePic0,"Ambulance "+ str(id) + " id 0"+" {}".format(strftime("%d %b %Y %H:%M:%S")) ,(2,(h/picResolotion) - 5), font, 0.3,(0,255,255),1)    
@@ -237,9 +243,7 @@ while(cap0.isOpened() and cap1.isOpened()):
             jpg_as_text1 = base64.b64encode(buffer1)
             flagPic = True
             #print("Ok!!!")
-        if(flagUSBOk == True):
-            out0.write(frame0)
-            out1.write(frame1)    
+            
 
           
                     #break 
@@ -247,14 +251,15 @@ while(cap0.isOpened() and cap1.isOpened()):
         
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-    if (current_time/1000) - startTime > 60*timeVDO:
+    if (current_time/1000) - startTime > 60:
         break 
     if(GPIO.input(4) == 0):
         break
-    
+    #timeVDO
 # Release everything if job is finished
 
 print("Process time > "+str((current_time/1000) - startTime)+" sec")
+KillPs = True
 if(flagUSBOk == True):    
     out0.release()
     out1.release()
@@ -264,6 +269,4 @@ cap1.release()
 GPIO.output(17,False) 
 GPIO.cleanup()
 KillPs = True
-if(t1.isAlive() == True):
-    t1.kill()
 print("End VDOS.py")
