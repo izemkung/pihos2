@@ -15,8 +15,37 @@ import requests
 import urllib2
 import httplib
 import threading
-
 import ConfigParser
+import signal
+
+class Timeout():
+    """ Timeout for use with the `with` statement. """
+
+    class TimeoutException(Exception):
+        """ Simple Exception to be called on timeouts. """
+        pass
+
+    def _timeout(signum, frame):
+        """ Raise an TimeoutException.
+
+        This is intended for use as a signal handler.
+        The signum and frame arguments passed to this are ignored.
+
+        """
+        raise Timeout.TimeoutException()
+
+    def __init__(self, timeout=10):
+        self.timeout = 10
+        signal.signal(signal.SIGALRM, Timeout._timeout)
+
+    def __enter__(self):
+        signal.alarm(self.timeout)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        signal.alarm(0)
+        return exc_type is Timeout.TimeoutException
+
+
 def ConfigSectionMap(section):
     dict1 = {}
     options = Config.options(section)
@@ -126,6 +155,8 @@ picResolotion = 2
 #cap.set(15, 0.1)
 
 # Define the codec and create VideoWriter object
+h = 360
+w = 640
 fourcc = cv2.cv.CV_FOURCC('D','I','V','X')
 try:
     for num in range(0, 10):
@@ -171,6 +202,7 @@ def myThreadSend ():
     global jpg_as_text1
     global flagPic
     global KillPs
+    global flagUSBOk
     current_time_T = 0
     last_time_T = 0
     countPic_T = 0
@@ -184,24 +216,32 @@ def myThreadSend ():
     while (KillPs == False):
         current_time_T = time.time() * 1000
         if flagPic == True:
-            if current_time_T - last_time_T > 1000:
+            if current_time_T - last_time_T > 800:
                 flagPic = False
-                last_time_T = current_time_T
+                
                 data = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
                 try:
+                    GPIO.output(17,True)
+                    r = 'error'
+                    #with Timeout(10):
                     r = requests.post(pic_url, data=data)
                     print r
                     connectionError = 0
-                    GPIO.output(17,True)
+                    
+                    if flagUSBOk == False :
+                        time.sleep(0.1)
+                        GPIO.output(17,False)
+                        time.sleep(0.1)
+                        GPIO.output(17,True)
                     countPic_T += 1
-                    print("Send > "+str(countPic_T)) 
-                    print("FreamRate > "+str(1000/(current_time_T - last_time_T))+" Hz")
+                    print("Send > "+str(countPic_T)+" FreamRate > "+str(1000/(current_time_T - last_time_T))+" Hz" ) 
                     
                 except:
                     connectionError += 1
                     if connectionError > 10:
                         connectionError = 0
-                        print "Connection Error"
+                        print "Connection Error or Time Out"
+                last_time_T = current_time_T
     print("Time > "+str(timeVDO) + " m NumPic > "+str(countPic_T)) 
 
 
@@ -269,4 +309,5 @@ cap1.release()
 GPIO.output(17,False) 
 GPIO.cleanup()
 KillPs = True
+t1.join()
 print("End VDOS.py")

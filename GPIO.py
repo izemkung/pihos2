@@ -111,10 +111,13 @@ def ConfigSectionMap(section):
 
 print "Start GPIO"
 time.sleep(5)
-ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
-ser.flushInput()
-ser.flushOutput()
-ser.write('AT+GSN\r')
+try:
+    ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
+    ser.flushInput()
+    ser.flushOutput()
+    ser.write('AT+GSN\r')
+except:
+    os.system('sudo reboot')
 time.sleep(1)
 for num in range(0, 10):
     bufemi = ser.readline()

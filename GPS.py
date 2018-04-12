@@ -102,7 +102,7 @@ if __name__ == '__main__':
     gpsp.start() # start it up
     countSend = 0
     countError = 0
-    timeout = time.time() + 120
+    timeout = time.time() + 60
     while True:
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
@@ -150,9 +150,9 @@ if __name__ == '__main__':
       if time.time() > timeout:
         print "Timeout"
         for count in range(0, 3):
-          time.sleep(0.2)
+          time.sleep(0.5)
           GPIO.output(22,True)
-          time.sleep(0.2)
+          time.sleep(0.5)
           GPIO.output(22,False)
         break
       if countError > 20:
