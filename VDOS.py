@@ -229,10 +229,12 @@ def myThreadSend ():
                     connectionError = 0
                     
                     if flagUSBOk == False :
-                        time.sleep(0.1)
+                        time.sleep(0.2)
                         GPIO.output(17,False)
-                        time.sleep(0.1)
+                        time.sleep(0.2)
                         GPIO.output(17,True)
+                        time.sleep(0.2)
+                    GPIO.output(17,False)
                     countPic_T += 1
                     print("Send > "+str(countPic_T)+" FreamRate > "+str(1000/(current_time_T - last_time_T))+" Hz" ) 
                     
