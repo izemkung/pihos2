@@ -137,12 +137,7 @@ if __name__ == '__main__':
             countError+=1
         except:
           print 'exceptError'
-          time.sleep(1)
           countError += 1
-          if countError > 20:
-            #GPIO.output(27,False)
-            break
-          #continue
 		
       GPIO.output(22,False)
       time.sleep(0.95) #set to whatever

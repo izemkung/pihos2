@@ -3,7 +3,7 @@ var PythonShell = require('python-shell');
 var isError = 0;
 
 
-PythonShell.run('VDOS.py', function (err,results) 
+PythonShell.run('VDOS2.py', function (err,results) 
 {
   if (err)
   { 
