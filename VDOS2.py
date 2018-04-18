@@ -252,11 +252,11 @@ t1.start()
 
 while (True):
     current_time_T = time.time() * 1000
-    GPIO.output(17,True)
+    
     if flagPic == True:
         if current_time_T - last_time_T > 500:
             flagPic = False
-            
+            #GPIO.output(17,True)
             data = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
             try:
                 GPIO.output(17,False)
@@ -272,9 +272,11 @@ while (True):
                     time.sleep(0.2)
                     GPIO.output(17,False)
                     time.sleep(0.2)
-                GPIO.output(17,True)
-                countPic_T += 1
-                print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" ) 
+                
+                if(r.status_code == 200 ):
+                    GPIO.output(17,True)
+                    countPic_T += 1
+                    print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" ) 
                 
             except:
                 connectionError += 1
