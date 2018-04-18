@@ -293,6 +293,10 @@ while (True):
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+    if (GPIO.input(4) == 0) :
+        break
+
 print("Time > "+str(timevdo) + " m NumPic > "+str(countPic_T)) 
 KillPs = True
 
