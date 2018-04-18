@@ -283,9 +283,12 @@ while (True):
                 if connectionError > 10:
                     connectionError = 0
                     print "Connection Error or Time Out"
+                    break
+                    
             last_time_T = current_time_T
             print("Run Time > "+str((current_time_T/1000) - startTime) )
             print("condi  > "+str(60 * int(timevdo) ))
+
     if ((current_time_T/1000) - startTime) > (60 * int(timevdo)):
         break 
 
