@@ -76,6 +76,7 @@ os.system('sudo systemctl disable gpsd.socket')
 os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(portOk))
 os.system('sudo systemctl enable gpsd.socket')
 os.system('sudo systemctl start gpsd.socket')
+gpsd = None
 
 class GpsPoller(threading.Thread):
   def __init__(self):
@@ -181,16 +182,16 @@ if __name__ == '__main__':
   except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
     print "\nKilling Thread..."
     gpsp.running = False
-    gpsp.join() # wait for the thread to finish what it's doing
+    #gpsp.join() # wait for the thread to finish what it's doing
     #GPIO.output(27,False)
     GPIO.output(22,False)
     GPIO.cleanup()
-    exit()
+    #exit()
 
   print "Done.\nExiting."
   gpsp.running = False
-  gpsp.join() # wait for the thread to finish what it's doing
+  #gpsp.join() # wait for the thread to finish what it's doing
   #GPIO.output(27,False)
   GPIO.output(22,False)
   GPIO.cleanup()
-  exit()
+  #exit()
