@@ -36,7 +36,8 @@ gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
 
 gpsd = None #seting the global variable
-
+timeout = None
+timeReset = None
 #checking port
 #port = 'Error'
 portOk = '/dev/ttyUSB1'
@@ -76,7 +77,7 @@ os.system('sudo systemctl disable gpsd.socket')
 os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(portOk))
 os.system('sudo systemctl enable gpsd.socket')
 os.system('sudo systemctl start gpsd.socket')
-gpsd = None
+
 
 class GpsPoller(threading.Thread):
   def __init__(self):
@@ -93,6 +94,8 @@ class GpsPoller(threading.Thread):
  
 if __name__ == '__main__':
   global gpsd
+  global timeout
+  global timeReset
   gpsp = GpsPoller() # create the thread
   try:
     GPIO.setwarnings(False)
@@ -104,6 +107,7 @@ if __name__ == '__main__':
     countSend = 0
     countError = 0
     timeout = time.time() + 60
+    timeReset = time.time() + 600
     while True:
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
@@ -145,15 +149,25 @@ if __name__ == '__main__':
       
       if time.time() > timeout:
         print "Timeout"
-        for count in range(0, 3):
+        for count in range(0, 2):
           time.sleep(0.5)
           GPIO.output(22,True)
           time.sleep(0.5)
           GPIO.output(22,False)
         break
+
+      if time.time() > timeReset:
+        print "Timeout"
+        for count in range(0, 3):
+          time.sleep(1)
+          GPIO.output(22,True)
+          time.sleep(1)
+          GPIO.output(22,False)
+        break
+        
       if countError > 20:
         print "countError"
-        for count in range(0, 6):
+        for count in range(0, 10):
           time.sleep(0.1)
           GPIO.output(22,True)
           time.sleep(0.1)
