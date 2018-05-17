@@ -75,6 +75,7 @@ portOk = '/dev/ttyUSB1'
 
 try:
   os.system('sudo chmod +x /home/pi/pihos/connect.sh')
+  os.system('sudo timedatectl set-ntp True')
 
   os.system('sudo systemctl stop gpsd.socket')
   os.system('sudo systemctl disable gpsd.socket')
