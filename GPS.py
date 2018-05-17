@@ -43,6 +43,7 @@ timeReset = None
 #checking port
 #port = 'Error'
 portOk = '/dev/ttyUSB1'
+#sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock
 #input2 = 0
 #for num in range(0, 4):
 #    port = '/dev/ttyUSB{0}'.format(num)
@@ -97,7 +98,7 @@ class GpsPoller(threading.Thread):
       gpsd.next() #this will continue to loop and grab EACH set of gpsd info to clear the buffer
 
 print  'URL > ',gps_url,' ID > ',id
-#gpsp = GpsPoller() # create the thread
+gpsp = GpsPoller() # create the thread
 gpsd = gps(mode=WATCH_ENABLE)
 #try:
 GPIO.setwarnings(False)
@@ -105,13 +106,13 @@ GPIO.setmode(GPIO.BCM)
 #GPIO.setup(27, GPIO.OUT)#3G
 GPIO.setup(22, GPIO.OUT)#GPS
 
-#gpsp.start() # start it up
+gpsp.start() # start it up
 countSend = 0
 countError = 0
 timeout = time.time() + 30
 timeReset = time.time() + 300
 while True:
-  gpsd.next()
+  #gpsd.next()
   #It may take a second or two to get good data
   #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
   
@@ -208,8 +209,8 @@ while True:
   #exit()
 
 print "Done.\nExiting."
-#gpsp.running = False
-#gpsp.join() # wait for the thread to finish what it's doing
+gpsp.running = False
+gpsp.join() # wait for the thread to finish what it's doing
 #GPIO.output(27,False)
 GPIO.output(22,False)
 GPIO.cleanup()
