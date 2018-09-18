@@ -215,4 +215,4 @@ gpsp.join() # wait for the thread to finish what it's doing
 #GPIO.output(27,False)
 GPIO.output(22,False)
 GPIO.cleanup()
-#exit()
+exit()

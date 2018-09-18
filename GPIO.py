@@ -112,7 +112,7 @@ def ConfigSectionMap(section):
 print "Start GPIO"
 time.sleep(5)
 try:
-    ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=.5)
+    ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
     ser.flushInput()
     ser.flushOutput()
     ser.write('AT+GSN\r')
