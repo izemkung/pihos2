@@ -118,6 +118,8 @@ try:
     ser.flushOutput()
     ser.write('AT+GSN\r')
 except:
+    print "Serial Error"
+    time.sleep(10)
     os.system('sudo reboot')
 time.sleep(1)
 for num in range(0, 10):
@@ -233,7 +235,6 @@ while True:
         print('Power Off')
         SendStatusFun('Power Off {0:.1f} Min'.format((current_time - timeStart)/60))
         time.sleep(10)
-        
         os.system('sudo shutdown -h now')
         break
 
