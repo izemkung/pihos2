@@ -57,7 +57,7 @@ def SendStatusFun(message):
         for r in replacements:
             bufsid = bufsid.replace(r, ' ')
         SID = bufsid.split(" ")
-        print SID
+        #print SID
         #SID = CID[1]
         
         ser.write('AT+GSN\r')
@@ -71,22 +71,23 @@ def SendStatusFun(message):
         for r in replacements:
             bufemi = bufemi.replace(r, ' ')
         IMEI = bufemi.split(" ")
-        print IMEI
+        #print IMEI
         #IMEI = emi[0]
         sidOk = True
         
-        print id
+        #print id
         ip = get_ip_address('ppp0') 
-        print ip
-        print SID
-        print IMEI
+        #print ip
+        #print SID
+        #print IMEI
         api = nti_url.split("/")
-        print api[2]
+        #print api[2]
 
         if len(SID[1]) <= 13:
             return False
 
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
+        print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message)
         print ('content     ' + resp.content) 
         return True
     except:
@@ -214,7 +215,7 @@ GPIO.add_event_detect(3, GPIO.RISING, callback=SendAlartFun, bouncetime=100)
 sendStart = False
 
 current_time = time.time()
-startTime = time.time()
+timeout2 = time.time()
 timeStart = time.time()
 timeout = time.time() + 60
 while True:
@@ -237,9 +238,10 @@ while True:
         break
 
 #On line status
-    if current_time - startTime > 60*10:
+    if time.time() > timeout2:
+        print "Sent Online Status" 
         SendStatusFun('On {0:.1f} Min'.format((current_time - timeStart)/60))
-        startTime = current_time
+        timeout2 = time.time() + 600
 
 #Ennable GPS
     if time.time() > timeout:

@@ -73,7 +73,7 @@ GPIO.setup(17, GPIO.OUT)#Rec
 #GPIO.setup(27, GPIO.OUT)#3G
 BLOCKSIZE = 65536
 
-timeout = time.time() + 200  
+timeout = time.time() + 600  
 while True:
     
 
@@ -84,14 +84,14 @@ while True:
         while len(buf) > 0:
             hasher1.update(buf)
             buf = afile.read(BLOCKSIZE)
-    print(hasher1.hexdigest())
+    #print(hasher1.hexdigest())
 
     with open('/home/pi/usb/config.ini', 'rb') as afile:
         buf = afile.read(BLOCKSIZE)
         while len(buf) > 0:
             hasher2.update(buf)
             buf = afile.read(BLOCKSIZE)
-    print(hasher2.hexdigest())
+    #print(hasher2.hexdigest())
 
     info1 = os.stat('/home/pi/config.ini')
     info2 = os.stat('/home/pi/usb/config.ini')
@@ -108,7 +108,7 @@ while True:
         print "New File Config"
     else :
         print "File Config Ok"
-    time.sleep(5)
+    time.sleep(60)
     #GPIO.output(17,False)
     if time.time() > timeout:
         print "Timeout"

@@ -134,7 +134,9 @@ while True:
     GPIO.output(22,True)
     try:
       resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
-      print 'status_code ' , resp.status_code
+      
+      if(resp.status_code != 200 ):
+        print 'status_code ' , resp.status_code
       #print 'headers     ' , resp.headers
       #print 'content     ' , resp.content
       #GPIO.output(27,True)

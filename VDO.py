@@ -220,7 +220,7 @@ def myThreadVDO ():
                 jpg_as_text0 = base64.b64encode(buffer0)
                 jpg_as_text1 = base64.b64encode(buffer1)
                 flagPic = True
-                print("Capp!!!")
+                #print("Capp!!!")
                 
             
                         #break 
@@ -263,9 +263,12 @@ while (True):
                 r = 'error'
                 with Timeout(5):
                     r = requests.post(pic_url, data=data)
-                print r
-                connectionError = 0
                 
+                connectionError = 0
+
+                if(r.status_code != 200 ):
+                    print r
+               
                 if flagUSBOk == False :
                     time.sleep(0.2)
                     GPIO.output(17,True)
@@ -276,7 +279,7 @@ while (True):
                 if(r.status_code == 200 ):
                     GPIO.output(17,True)
                     countPic_T += 1
-                    print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" ) 
+                    print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" + "Run Time > "+str((current_time_T/1000) - startTime) ) 
                 
             except:
                 connectionError += 1
@@ -286,8 +289,8 @@ while (True):
                     break
                     
             last_time_T = current_time_T
-            print("Run Time > "+str((current_time_T/1000) - startTime) )
-            print("condi  > "+str(60 * int(timevdo) ))
+            #print("Run Time > "+str((current_time_T/1000) - startTime) )
+            #print("condi  > "+str(60 * int(timevdo) ))
 
     if ((current_time_T/1000) - startTime) > (60 * int(timevdo)):
         break 
