@@ -140,7 +140,7 @@ gpsp.start() # start it up
 countSend = 0
 countError = 0
 timeout = time.time() + 30
-timeReset = time.time() + 300
+timeReset = time.time() + 1200
 while True:
   #gpsd.next()
   #It may take a second or two to get good data
