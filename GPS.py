@@ -42,7 +42,29 @@ timeout = None
 timeReset = None
 #checking port
 #port = 'Error'
-portOk = '/dev/ttyUSB1'
+GPSPortUC20 = '/dev/ttyUSB1'
+GPSPortHW =  '/dev/ttyAMA0'
+flagDetectHW_GPS = False
+#==============================HW Serial GPS Detection==============================
+try:
+    ser = serial.Serial(GPSPortHW, 9600 , timeout=0.5 , rtscts=True, dsrdtr=True)
+    ser.flushInput()
+    ser.flushOutput()
+    time.sleep(2)
+    for num in range(0, 2):
+        bufemi = ser.readline()
+        if len(bufemi) >= 5 :
+            flagDetectHW_GPS = True
+            print bufemi
+            break
+    ser.close()
+except:
+    print "Open Serial HW Error"
+    #time.sleep(10)
+    #os.system('sudo reboot')
+
+
+
 #sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock
 #input2 = 0
 #for num in range(0, 4):
@@ -68,7 +90,7 @@ portOk = '/dev/ttyUSB1'
 #    print('Checked {0} Data In {1} DataS {2}'.format(port,input,input2))
 #    if(input > 200) or (input2 > 100):
 #        print('{0} Ok!!!'.format(port))
-#        portOk = port
+#        GPSPortUC20 = port
 #        break
 #time.sleep(10)
 #os.system('clear') #clear the terminal (optional)
@@ -79,7 +101,14 @@ try:
 
   os.system('sudo systemctl stop gpsd.socket')
   os.system('sudo systemctl disable gpsd.socket')
-  os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(portOk))
+  
+  if flagDetectHW_GPS == True:
+    print "GPS HW"
+    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortHW))
+  else:
+    print "GPS UC20"
+    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
+
   os.system('sudo systemctl enable gpsd.socket')
   os.system('sudo systemctl start gpsd.socket')
 except :
