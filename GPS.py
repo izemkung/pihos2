@@ -53,7 +53,7 @@ try:
     time.sleep(2)
     for num in range(0, 2):
         bufemi = ser.readline()
-        if len(bufemi) >= 5 :
+        if len(bufemi) >= 15 :
             flagDetectHW_GPS = True
             print bufemi
             break
@@ -104,7 +104,7 @@ try:
   
   if flagDetectHW_GPS == True:
     print "GPS HW"
-    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortHW))
+    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
   else:
     print "GPS UC20"
     os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
