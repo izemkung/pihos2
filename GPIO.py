@@ -113,7 +113,7 @@ def ConfigSectionMap(section):
 print "Start GPIO"
 
 #=========================Ennable UC20 GPS
-time.sleep(1)
+time.sleep(5)
 try:
     ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
     ser.flushInput()
@@ -129,10 +129,10 @@ try:
         bufemi = bufemi.replace(r, ' ')
     IMEI = bufemi.split(" ")
     print IMEI[0]
-
+    time.sleep(1)
     ser.write('AT+QGPS=1\r')
     ser.write('ATE0\r')
-    time.sleep(1)
+    
 
 except:
     print "Serial Error"
