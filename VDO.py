@@ -314,7 +314,7 @@ KillPs = True
 
 print("Process time > "+str((current_time/1000) - startTime)+" sec")
 
-GPIO.output(17,False) 
+GPIO.output(17,True)
 GPIO.cleanup()
 t1.join()
 print("End VDOS.py")

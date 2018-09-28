@@ -8,7 +8,7 @@ import requests
 import urllib2
 import httplib
 import time
-import RPi.GPIO as GPIO ## Import GPIO library
+#import RPi.GPIO as GPIO ## Import GPIO library
 import ConfigParser
 import hashlib
 
@@ -67,9 +67,9 @@ countPic = 0
 countNoNewpic = 0
 connectionError = 0
 
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM) ## Use board pin numbering
-GPIO.setup(17, GPIO.OUT)#Rec
+#GPIO.setwarnings(False)
+#GPIO.setmode(GPIO.BCM) ## Use board pin numbering
+#GPIO.setup(17, GPIO.OUT)#Rec
 #GPIO.setup(27, GPIO.OUT)#3G
 BLOCKSIZE = 65536
 
@@ -162,6 +162,6 @@ while True:
         print countPic
         break
 '''
-GPIO.output(17,False) 
+#GPIO.output(17,False) 
 #GPIO.setup(27,False)  
-GPIO.cleanup()
+#GPIO.cleanup()
