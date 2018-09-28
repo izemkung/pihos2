@@ -313,7 +313,7 @@ timeout2 = time.time()
 timeStart = time.time()
 timeout = time.time() + 60
 while True:
-
+    time.sleep(2)
     current_time = time.time()
 #I/O Power on
     if sendStart == False  :

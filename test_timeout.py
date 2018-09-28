@@ -33,7 +33,7 @@ print('This is going to take maximum 10 seconds...')
 
 try:
     with Timeout(10):
-        sleep(1)
+        sleep(11)
         print('No timeout?')
 except:
     print('timeout')

@@ -220,7 +220,7 @@ def myThreadVDO ():
                 jpg_as_text0 = base64.b64encode(buffer0)
                 jpg_as_text1 = base64.b64encode(buffer1)
                 flagPic = True
-                #print("Capp!!!")
+                print("Capp!!!")
                 
             
                         #break 
@@ -255,41 +255,45 @@ while (True):
     
     if flagPic == True:
         if current_time_T - last_time_T > 500:
+            last_time_T = current_time_T
             flagPic = False
             #GPIO.output(17,True)
             data = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
+            #flagPic = False
             try:
                 GPIO.output(17,False)
                 r = 'error'
                 with Timeout(5):
                     r = requests.post(pic_url, data=data)
+                    #print('No timeout?')
                 
-                connectionError = 0
+                    connectionError = 0
 
-                if(r.status_code != 200 ):
-                    print r
-               
-                if flagUSBOk == False :
-                    time.sleep(0.2)
-                    GPIO.output(17,True)
-                    time.sleep(0.2)
-                    GPIO.output(17,False)
-                    time.sleep(0.2)
+                    if(r.status_code != 200 ):
+                        print r
                 
-                if(r.status_code == 200 ):
-                    time.sleep(0.2)
-                    GPIO.output(17,True)
-                    countPic_T += 1
-                    print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" + "Run Time > "+str((current_time_T/1000) - startTime) ) 
-                
+                    if flagUSBOk == False :
+                        time.sleep(0.2)
+                        GPIO.output(17,True)
+                        time.sleep(0.2)
+                        GPIO.output(17,False)
+                        time.sleep(0.2)
+                    
+                    if(r.status_code == 200 ):
+                        #time.sleep(0.2)
+                        GPIO.output(17,True)
+                        countPic_T += 1
+                        print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" + "Run Time > "+str((current_time_T/1000) - startTime) ) 
+                    
             except:
+                #print('timeout')
                 connectionError += 1
                 if connectionError > 10:
                     connectionError = 0
                     print "Connection Error or Time Out"
                     break
                     
-            last_time_T = time.time() * 1000
+           
             #print("Run Time > "+str((current_time_T/1000) - startTime) )
             #print("condi  > "+str(60 * int(timevdo) ))
 
@@ -316,5 +320,5 @@ print("Process time > "+str((current_time/1000) - startTime)+" sec")
 
 GPIO.output(17,True)
 GPIO.cleanup()
-t1.join()
+#t1.join()
 print("End VDOS.py")
