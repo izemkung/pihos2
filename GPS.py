@@ -42,77 +42,7 @@ timeout = None
 timeReset = None
 #checking port
 #port = 'Error'
-GPSPortUC20 = '/dev/ttyUSB1'
-GPSPortHW =  '/dev/ttyAMA0'
-flagDetectHW_GPS = False
-#==============================HW Serial GPS Detection==============================
-try:
-    ser = serial.Serial(GPSPortHW, 9600 , timeout=0.5 , rtscts=True, dsrdtr=True)
-    ser.flushInput()
-    ser.flushOutput()
-    time.sleep(2)
-    for num in range(0, 2):
-        bufemi = ser.readline()
-        if len(bufemi) >= 15 :
-            flagDetectHW_GPS = True
-            print bufemi
-            break
-    ser.close()
-except:
-    print "Open Serial HW Error"
-    #time.sleep(10)
-    #os.system('sudo reboot')
 
-
-
-#sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock
-#input2 = 0
-#for num in range(0, 4):
-#    port = '/dev/ttyUSB{0}'.format(num)
-#    try:
-#        ser = serial.Serial(port, 115200, timeout=.5)
-#        input = ser.inWaiting()
-#        print('Checking {0} Data In {1}'.format(port,input))
-#        time.sleep(5)
-#        input = ser.inWaiting()
-#    except:
-#        print('Port {0} busy'.format(port))
-
-#    try:
-#        input2 = 0
-#        for count in range(0, 10):
-#            inputS = ser.readline()
-#            input2 += len(inputS)
-#            print(inputS)
-#        ser.close()
-#    except:
-#        print('Port {0} Except'.format(port))
-#    print('Checked {0} Data In {1} DataS {2}'.format(port,input,input2))
-#    if(input > 200) or (input2 > 100):
-#        print('{0} Ok!!!'.format(port))
-#        GPSPortUC20 = port
-#        break
-#time.sleep(10)
-#os.system('clear') #clear the terminal (optional)
-
-try:
-  os.system('sudo chmod +x /home/pi/pihos/connect.sh')
-  os.system('sudo timedatectl set-ntp True')
-
-  os.system('sudo systemctl stop gpsd.socket')
-  os.system('sudo systemctl disable gpsd.socket')
-  
-  if flagDetectHW_GPS == True:
-    print "GPS HW"
-    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
-  else:
-    print "GPS UC20"
-    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
-
-  os.system('sudo systemctl enable gpsd.socket')
-  os.system('sudo systemctl start gpsd.socket')
-except :
-  print "Init gpsd Error"
 
 class GpsPoller(threading.Thread):
   def __init__(self):
@@ -129,7 +59,7 @@ class GpsPoller(threading.Thread):
 
 print  'URL > ',gps_url,' ID > ',id
 gpsp = GpsPoller() # create the thread
-gpsd = gps(mode=WATCH_ENABLE)
+#gpsd = gps(mode=WATCH_ENABLE)
 #try:
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
