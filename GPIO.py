@@ -112,7 +112,35 @@ def ConfigSectionMap(section):
 
 print "Start GPIO"
 
+#=========================Ennable UC20 GPS
+time.sleep(1)
+try:
+    ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
+    ser.flushInput()
+    ser.flushOutput()
+    ser.write('AT+GSN\r')
 
+    for num in range(0, 10):
+        bufemi = ser.readline()
+        if len(bufemi) >= 10 :
+            break
+    replacements = (',', '\r', '\n', '?')
+    for r in replacements:
+        bufemi = bufemi.replace(r, ' ')
+    IMEI = bufemi.split(" ")
+    print IMEI[0]
+
+    ser.write('AT+QGPS=1\r')
+    ser.write('ATE0\r')
+    time.sleep(1)
+
+except:
+    print "Serial Error"
+    time.sleep(20)
+    os.system('sudo reboot')
+time.sleep(1)
+
+#=========================Detect HW GPS
 GPSPortUC20 = '/dev/ttyUSB1'
 GPSPortHW =  '/dev/ttyAMA0'
 flagDetectHW_GPS = False
@@ -132,23 +160,40 @@ except :
 time.sleep(2)
 #==============================HW Serial GPS Detection==============================
 try:
-    ser = serial.Serial(GPSPortHW, 9600 , timeout=3.0 , rtscts=True, dsrdtr=True)
-    ser.flushInput()
-    ser.flushOutput()
+    serDetec = serial.Serial(GPSPortHW, 9600 , timeout=1.0 , rtscts=True, dsrdtr=True)
+    serDetec.flushInput()
+    serDetec.flushOutput()
     time.sleep(1)
     for num in range(0, 20):
         #time.sleep(0.5)
-        bufemi = ser.readline()
+        bufemi = serDetec.readline()
         print bufemi
         if bufemi[0] == '$' and bufemi[1] == 'G':
             flagDetectHW_GPS = True
             print "HW GPS Detect"
             break
-    ser.close()
+    serDetec.close()
 except:
     print "Open Serial HW Error"
     #time.sleep(10)
     #os.system('sudo reboot')
+
+try:
+  if flagDetectHW_GPS == True:
+    print "gpsd > GPS HW"
+    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortHW))
+  else:
+    print "gpsd > GPS UC20"
+    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
+  
+  time.sleep(1)
+  os.system('sudo systemctl enable gpsd.socket')
+  os.system('sudo systemctl start gpsd.socket')
+
+  os.system('sudo systemctl enable gpsd.socket')
+  os.system('sudo systemctl start gpsd.socket')
+except :
+  print "Init gpsd Error"
 
 
 
@@ -183,48 +228,6 @@ except:
 #os.system('clear') #clear the terminal (optional)
 
 
-try:
-  if flagDetectHW_GPS == True:
-    print "GPS HW"
-    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortHW))
-  else:
-    print "GPS UC20"
-    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
-  
-  time.sleep(1)
-  os.system('sudo systemctl enable gpsd.socket')
-  os.system('sudo systemctl start gpsd.socket')
-
-  os.system('sudo systemctl enable gpsd.socket')
-  os.system('sudo systemctl start gpsd.socket')
-except :
-  print "Init gpsd Error"
-
-time.sleep(1)
-try:
-    ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
-    ser.flushInput()
-    ser.flushOutput()
-    ser.write('AT+GSN\r')
-except:
-    print "Serial Error"
-    time.sleep(10)
-    os.system('sudo reboot')
-time.sleep(1)
-for num in range(0, 10):
-    bufemi = ser.readline()
-    if len(bufemi) >= 10 :
-        break
-
-replacements = (',', '\r', '\n', '?')
-for r in replacements:
-    bufemi = bufemi.replace(r, ' ')
-IMEI = bufemi.split(" ")
-print IMEI[0]
-
-ser.write('AT+QGPS=1\r')
-ser.write('ATE0\r')
-time.sleep(2)
 resp = requests.get('http://188.166.197.107/Config_API.php?IMEI=861075028784957')
 print resp.json()['API_NTI']
 
@@ -340,5 +343,7 @@ while True:
         ser.write('AT+QGPS=1\r')
         for num in range(0, 5):
             bufemi = ser.readline()
-        print "Set Starting GPS"    
+        print "Set Starting GPS"  
+
+ser.close()
 GPIO.cleanup()
