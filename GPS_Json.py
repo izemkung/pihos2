@@ -12,6 +12,8 @@ import RPi.GPIO as GPIO ## Import GPIO library
 import serial
 import time
 import ConfigParser
+import json
+
 def ConfigSectionMap(section):
     dict1 = {}
     options = Config.options(section)
@@ -34,17 +36,12 @@ timevdo = ConfigSectionMap('Profile')['timevdo']
 timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
-version = 30
-try:
-  version = ConfigSectionMap('Profile')['version']
-except:
-  print("exception version")
-print  'version > ',version
+
+
+
 gpsd = None #seting the global variable
 timeout = None
 timeReset = None
-
-
 #checking port
 #port = 'Error'
 
@@ -68,16 +65,27 @@ gpsp = GpsPoller() # create the thread
 #try:
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-if version == '25':
-  GPIO.setup(27, GPIO.OUT)#3G
-  print  'setGPIO 27 '
-
+#GPIO.setup(27, GPIO.OUT)#3G
 GPIO.setup(22, GPIO.OUT)#GPS
+
 gpsp.start() # start it up
 countSend = 0
 countError = 0
 timeout = time.time() + 30
-timeReset = time.time() + 1200
+timeReset = time.time() + 60 #1200
+
+x =  '{ "name":"John", "age":30, "city":"New York"}'
+
+# parse x:
+y = json.loads(x)
+print(y["age"])
+
+#api = "https://node-server.aocopt.com/admin/ambulance_tracking_update"
+api = "https://node-storage-server.aocopt.com/admin/ambulance_tracking_update"
+print api
+
+
+
 while True:
   #gpsd.next()
   #It may take a second or two to get good data
@@ -99,8 +107,18 @@ while True:
   if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
     GPIO.output(22,True)
     try:
-      resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
+      #resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
       
+      headers = {'Host': 'node-storage-server.aocopt.com','Content-type': 'application/json','authorzation':'#cartrawler.production@taXiC0nn3ct','Cache-Control': 'no-cache', 'Postman-Token': '19c3886b-c2b8-4eb0-94ce-71190dfc6dd6'}
+      data = {
+        'tracking_speed': gpsd.fix.speed,
+         'tracking_heading': gpsd.fix.track,
+         'tracking_longitude': gpsd.fix.longitude ,
+         'tracking_latitude': gpsd.fix.latitude,
+          'ambulance_id':  id 
+            }
+      
+      resp = requests.post(api, json=data,headers=headers)
       if(resp.status_code != 200 ):
         print 'status_code ' , resp.status_code
       #print 'headers     ' , resp.headers
@@ -110,8 +128,9 @@ while True:
         countSend += 1
         countError = 0
         timeout = time.time() + 30 #timeout reset
-        if version == '25':
-          GPIO.output(27,True)
+
+        print resp.json()
+
       else:
         print 'respError'
         countError+=1
@@ -149,8 +168,7 @@ while True:
       GPIO.output(22,True)
       time.sleep(0.2)
       GPIO.output(22,False)
-      if version == '25':
-        GPIO.output(27,False)
+    #GPIO.output(27,False)
     break
 
   #print 'altitude (m)' , gpsd.fix.altitude
@@ -183,8 +201,7 @@ while True:
 print "Done.\nExiting."
 gpsp.running = False
 gpsp.join() # wait for the thread to finish what it's doing
-if version == '25':
-  GPIO.output(27,False)
+#GPIO.output(27,False)
 GPIO.output(22,False)
 GPIO.cleanup()
 exit()
