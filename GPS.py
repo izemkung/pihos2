@@ -49,9 +49,10 @@ except:
 print  'version > ',version
 
 
-sound = ConfigSectionMap('Profile')['sound']
-over_Speed = ConfigSectionMap('Profile')['over_speed']
+
 try:
+  sound = ConfigSectionMap('Profile')['sound']
+  over_Speed = ConfigSectionMap('Profile')['over_speed']
   import pygame
   pygame.mixer.init()
   pygame.mixer.music.load("sd.mp3")
