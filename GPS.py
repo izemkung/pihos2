@@ -35,11 +35,31 @@ timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
 version = 30
+sound = "disable"#enable#disable
+sound_level = 100
+sound_time_loop = 7
+over_Speed = 80
+flagOverSpeed = False
+timePlaySound = 0
+
 try:
   version = ConfigSectionMap('Profile')['version']
 except:
   print("exception version")
 print  'version > ',version
+
+
+sound = ConfigSectionMap('Profile')['sound']
+over_Speed = ConfigSectionMap('Profile')['over_speed']
+try:
+  import pygame
+  pygame.mixer.init()
+  pygame.mixer.music.load("sd.mp3")
+except:
+  print("exception pygame")
+print  'sound > ',sound
+print  'over_Speed > ',over_Speed
+
 gpsd = None #seting the global variable
 timeout = None
 timeReset = None
@@ -115,6 +135,12 @@ while True:
       else:
         print 'respError'
         countError+=1
+
+      if(gpsd.fix.speed > 80):
+        flagOverSpeed = True
+      else:
+        flagOverSpeed = False
+
     except:
       print 'exceptError'
       countError += 1
@@ -124,6 +150,14 @@ while True:
   GPIO.output(22,False)
   time.sleep(0.95) #set to whatever
   
+  if(flagOverSpeed == True and sound == "enable"):
+    if(time.time() > timePlaySound):
+      timePlaySound = time.time() + sound_time_loop
+      try:
+        pygame.mixer.music.play()
+      except:
+        print 'Play Sound Error'
+
   if time.time() > timeout:
     print "Timeout"
     for count in range(0, 2):

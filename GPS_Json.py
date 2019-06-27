@@ -81,7 +81,8 @@ y = json.loads(x)
 print(y["age"])
 
 #api = "https://node-server.aocopt.com/admin/ambulance_tracking_update"
-api = "https://node-storage-server.aocopt.com/admin/ambulance_tracking_update"
+#api = "https://node-storage-server.aocopt.com/admin/ambulance_tracking_update"
+api = "https://d3655efc-677b-4282-b2d1-ae027e2d7e6c.mock.pstmn.io/test"
 print api
 
 
@@ -109,7 +110,7 @@ while True:
     try:
       #resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
       
-      headers = {'Host': 'node-storage-server.aocopt.com','Content-type': 'application/json','authorzation':'#cartrawler.production@taXiC0nn3ct','Cache-Control': 'no-cache', 'Postman-Token': '19c3886b-c2b8-4eb0-94ce-71190dfc6dd6'}
+      headers = {'Host': 'node-storage-server.aocopt.com','Content-type': 'application/json'}
       data = {
         'tracking_speed': gpsd.fix.speed,
          'tracking_heading': gpsd.fix.track,
@@ -117,7 +118,11 @@ while True:
          'tracking_latitude': gpsd.fix.latitude,
           'ambulance_id':  id 
             }
-      
+      #data = {
+      #  'alart_status': status,
+      #    'ambulance_id':  id 
+      #      }
+
       resp = requests.post(api, json=data,headers=headers)
       if(resp.status_code != 200 ):
         print 'status_code ' , resp.status_code
