@@ -326,7 +326,7 @@ while True:
     if(GPIO.input(4) == 0):
         print('Power Off')
         SendStatusFun('Power Off {0:.1f} Min'.format((current_time - timeStart)/60))
-        time.sleep(10)
+        time.sleep(20)
         os.system('sudo shutdown -h now')
         break
 

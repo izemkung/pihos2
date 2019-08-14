@@ -42,24 +42,30 @@ over_Speed = 80
 flagOverSpeed = False
 timePlaySound = 0
 
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+
 try:
   version = ConfigSectionMap('Profile')['version']
 except:
   print("exception version")
 print  'version > ',version
 
-
-
 try:
   sound = ConfigSectionMap('Profile')['sound']
   over_Speed = ConfigSectionMap('Profile')['over_speed']
+  sound_level = ConfigSectionMap('Profile')['sound_level']
   import pygame
   pygame.mixer.init()
-  pygame.mixer.music.load("sd.mp3")
+  pygame.mixer.music.set_volume(float(sound_level)/100)
+  pygame.mixer.music.load("alert.mp3")
+  GPIO.setup(23, GPIO.OUT)#sound
+  GPIO.output(23,False)#disable sound
 except:
   print("exception pygame")
 print  'sound > ',sound
 print  'over_Speed > ',over_Speed
+print  'sound_level > ',sound_level
 
 gpsd = None #seting the global variable
 timeout = None
@@ -87,13 +93,13 @@ print  'URL > ',gps_url,' ID > ',id
 gpsp = GpsPoller() # create the thread
 #gpsd = gps(mode=WATCH_ENABLE)
 #try:
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
+
 if version == '25':
   GPIO.setup(27, GPIO.OUT)#3G
   print  'setGPIO 27 '
 
 GPIO.setup(22, GPIO.OUT)#GPS
+
 gpsp.start() # start it up
 countSend = 0
 countError = 0
@@ -137,7 +143,7 @@ while True:
         print 'respError'
         countError+=1
 
-      if(gpsd.fix.speed > 80):
+      if(gpsd.fix.speed > int(over_Speed)):
         flagOverSpeed = True
       else:
         flagOverSpeed = False
@@ -152,12 +158,15 @@ while True:
   time.sleep(0.95) #set to whatever
   
   if(flagOverSpeed == True and sound == "enable"):
+    GPIO.output(23,True)#enable sound
     if(time.time() > timePlaySound):
       timePlaySound = time.time() + sound_time_loop
       try:
         pygame.mixer.music.play()
       except:
         print 'Play Sound Error'
+  else:
+    GPIO.output(23,False)#disable sound
 
   if time.time() > timeout:
     print "Timeout"

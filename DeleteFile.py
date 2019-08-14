@@ -23,7 +23,7 @@ if vergit != vercurrent and len(vercurrent) == len(vergit):
     print "Download FW "
     if os.path.exists("/home/pi/tmp") == True:
         print subprocess.check_output('sudo rm -rf /home/pi/tmp', shell=True) 
-        time.sleep(10)   
+        time.sleep(5)   
     print subprocess.check_output('sudo git clone https://github.com/izemkung/pihos2 /home/pi/tmp', shell=True)
     time.sleep(10)
     if os.path.exists("/home/pi/tmp") == True:

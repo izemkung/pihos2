@@ -81,8 +81,8 @@ y = json.loads(x)
 print(y["age"])
 
 #api = "https://node-server.aocopt.com/admin/ambulance_tracking_update"
-#api = "https://node-storage-server.aocopt.com/admin/ambulance_tracking_update"
-api = "https://d3655efc-677b-4282-b2d1-ae027e2d7e6c.mock.pstmn.io/test"
+api = "https://node-storage-server.aocopt.com/admin/ambulance_tracking_update"
+#api = "https://d3655efc-677b-4282-b2d1-ae027e2d7e6c.mock.pstmn.io/test"
 print api
 
 
