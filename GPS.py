@@ -45,6 +45,10 @@ timePlaySound = 0
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
+#========For Sound=========
+GPIO.setup(23, GPIO.OUT)#sound
+GPIO.output(23,False)#disable sound
+
 try:
   version = ConfigSectionMap('Profile')['version']
 except:
@@ -59,8 +63,7 @@ try:
   pygame.mixer.init()
   pygame.mixer.music.set_volume(float(sound_level)/100)
   pygame.mixer.music.load("alert.mp3")
-  GPIO.setup(23, GPIO.OUT)#sound
-  GPIO.output(23,False)#disable sound
+  
 except:
   print("exception pygame")
 print  'sound > ',sound
@@ -163,6 +166,7 @@ while True:
       timePlaySound = time.time() + sound_time_loop
       try:
         pygame.mixer.music.play()
+        print 'Play Over Speed'
       except:
         print 'Play Sound Error'
   else:
@@ -230,5 +234,6 @@ gpsp.join() # wait for the thread to finish what it's doing
 if version == '25':
   GPIO.output(27,False)
 GPIO.output(22,False)
+GPIO.output(23,False)#disable sound
 GPIO.cleanup()
 exit()
