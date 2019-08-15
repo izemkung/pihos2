@@ -108,6 +108,7 @@ countSend = 0
 countError = 0
 timeout = time.time() + 30
 timeReset = time.time() + 1200
+timestart = time.time()
 while True:
   #gpsd.next()
   #It may take a second or two to get good data
@@ -129,7 +130,7 @@ while True:
   if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
     GPIO.output(22,True)
     try:
-      resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
+      resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed*3.6,gpsd.fix.track), timeout=2.001)
       
       if(resp.status_code != 200 ):
         print 'status_code ' , resp.status_code
@@ -146,11 +147,6 @@ while True:
         print 'respError'
         countError+=1
 
-      if(gpsd.fix.speed > int(over_Speed)):
-        flagOverSpeed = True
-      else:
-        flagOverSpeed = False
-
     except:
       print 'exceptError'
       countError += 1
@@ -159,11 +155,25 @@ while True:
     
   GPIO.output(22,False)
   time.sleep(0.95) #set to whatever
+
+  print 'gps speeed ',str(gpsd.fix.speed*3.6),' setting speed ',over_Speed
+
+  if(str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != 'NaN'):
+    if(int(gpsd.fix.speed*3.6) > int(over_Speed)):
+      if flagOverSpeed == False:
+        timePlaySound = time.time()
+        flagOverSpeed = True
+    else:
+      flagOverSpeed = False
+      timePlaySound = time.time()
   
+    
   if(flagOverSpeed == True and sound == "enable"):
     GPIO.output(23,True)#enable sound
-    if(time.time() > timePlaySound):
-      timePlaySound = time.time() + sound_time_loop
+    print 'Enter Play Sound'
+    if(time.time() > timePlaySound+10):
+      #timePlaySound = time.time() + sound_time_loop
+      print 'Enter Play Sound with sound'
       try:
         pygame.mixer.music.play()
         print 'Play Over Speed'

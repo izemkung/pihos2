@@ -10,7 +10,7 @@ import fcntl
 import struct
 
 REMOTE_SERVER = "www.google.com"
-
+flagDetectHW_GPS = False
 
 def internet_on():
     try:
@@ -86,6 +86,11 @@ def SendStatusFun(message):
         if len(SID[1]) <= 13:
             return False
 
+        if flagDetectHW_GPS == True:
+            api[2] += '_GPS_HW'
+        else:
+            api[2] += '_GPS_UC'
+
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
         print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message))
         print ('content     ' + resp.content) 
@@ -143,7 +148,7 @@ time.sleep(1)
 #=========================Detect HW GPS
 GPSPortUC20 = '/dev/ttyUSB1'
 GPSPortHW =  '/dev/ttyAMA0'
-flagDetectHW_GPS = False
+
 
 try:
   os.system('sudo chmod +x /home/pi/pihos/connect.sh')
