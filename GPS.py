@@ -35,19 +35,9 @@ timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
 version = 30
-sound = "disable"#enable#disable
-sound_level = 100
-sound_time_loop = 7
-over_Speed = 80
-flagOverSpeed = False
-timePlaySound = 0
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-
-#========For Sound=========
-GPIO.setup(23, GPIO.OUT)#sound
-GPIO.output(23,False)#disable sound
 
 try:
   version = ConfigSectionMap('Profile')['version']
@@ -55,28 +45,10 @@ except:
   print("exception version")
 print  'version > ',version
 
-try:
-  sound = ConfigSectionMap('Profile')['sound']
-  over_Speed = ConfigSectionMap('Profile')['over_speed']
-  sound_level = ConfigSectionMap('Profile')['sound_level']
-  import pygame
-  pygame.mixer.init()
-  pygame.mixer.music.set_volume(float(sound_level)/100)
-  pygame.mixer.music.load("alert.mp3")
-  
-except:
-  print("exception pygame")
-print  'sound > ',sound
-print  'over_Speed > ',over_Speed
-print  'sound_level > ',sound_level
 
-gpsd = None #seting the global variable
+gpsd = None 
 timeout = None
 timeReset = None
-
-
-#checking port
-#port = 'Error'
 
 
 class GpsPoller(threading.Thread):
@@ -94,8 +66,7 @@ class GpsPoller(threading.Thread):
 
 print  'URL > ',gps_url,' ID > ',id
 gpsp = GpsPoller() # create the thread
-#gpsd = gps(mode=WATCH_ENABLE)
-#try:
+
 
 if version == '25':
   GPIO.setup(27, GPIO.OUT)#3G
@@ -108,14 +79,9 @@ countSend = 0
 countError = 0
 timeout = time.time() + 30
 timeReset = time.time() + 1200
-timestart = time.time()
+
 while True:
-  #gpsd.next()
-  #It may take a second or two to get good data
-  #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
-  
-  #os.system('clear')
-  #print
+ 
   print 'GPS sending Seccess ' , countSend ,' Error ', countError  
   #print '----------------------------------------'
   #print 'latitude    ' , gpsd.fix.latitude
@@ -155,32 +121,6 @@ while True:
     
   GPIO.output(22,False)
   time.sleep(0.95) #set to whatever
-
-  print 'gps speeed ',str(gpsd.fix.speed*3.6),' setting speed ',over_Speed
-
-  if(str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != 'NaN'):
-    if(int(gpsd.fix.speed*3.6) > int(over_Speed)):
-      if flagOverSpeed == False:
-        timePlaySound = time.time()
-        flagOverSpeed = True
-    else:
-      flagOverSpeed = False
-      timePlaySound = time.time()
-  
-    
-  if(flagOverSpeed == True and sound == "enable"):
-    GPIO.output(23,True)#enable sound
-    print 'Enter Play Sound'
-    if(time.time() > timePlaySound+10):
-      #timePlaySound = time.time() + sound_time_loop
-      print 'Enter Play Sound with sound'
-      try:
-        pygame.mixer.music.play()
-        print 'Play Over Speed'
-      except:
-        print 'Play Sound Error'
-  else:
-    GPIO.output(23,False)#disable sound
 
   if time.time() > timeout:
     print "Timeout"
@@ -238,12 +178,12 @@ while True:
   #GPIO.cleanup()
   #exit()
 
-print "Done.\nExiting."
+
 gpsp.running = False
 gpsp.join() # wait for the thread to finish what it's doing
 if version == '25':
   GPIO.output(27,False)
 GPIO.output(22,False)
-GPIO.output(23,False)#disable sound
 GPIO.cleanup()
+print "Done.\nExiting."
 exit()
