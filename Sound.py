@@ -65,6 +65,11 @@ print  'sound > ',sound
 print  'over_Speed > ',over_Speed
 print  'sound_level > ',sound_level
 
+
+if(sound == "disable"):
+    time.sleep(20)
+    exit()
+
 gpsd = None #seting the global variable
 timeout = None
 timeReset = None
