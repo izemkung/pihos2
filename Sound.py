@@ -60,7 +60,7 @@ try:
   pygame.mixer.music.load("alert.mp3")
   
 except:
-  print("exception pygame")
+  print("exception pygame!!!!")
 print  'sound > ',sound
 print  'over_Speed > ',over_Speed
 print  'sound_level > ',sound_level
@@ -96,10 +96,17 @@ while True:
  
   time.sleep(0.95) #set to whatever
 
-  if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
-    print 'GPS Error ', countError , ' setting speed ',over_Speed, 'speed ',str(gpsd.fix.speed*3.6)
-    if(str(gpsd.fix.speed) != 'nan' and str(gpsd.fix.speed) != 'NaN'):
-        if(int(gpsd.fix.speed*3.6) > int(over_Speed)):
+  latitude = gpsd.fix.latitude
+  speed =  gpsd.fix.speed
+  
+  #test
+  #latitude = '100.1'
+  #speed = 25
+
+  if str(latitude) != 'nan' and str(latitude) != '0.0':
+    #print 'GPS Error ', countError , ' setting speed ',over_Speed, 'speed ',str(speed*3.6)
+    if(str(speed) != 'nan' and str(speed) != 'NaN'):
+        if(int(speed*3.6) > int(over_Speed)):
             if flagOverSpeed == False:
                 timePlaySound = time.time()
             flagOverSpeed = True
@@ -110,9 +117,9 @@ while True:
        
         if(flagOverSpeed == True and sound == "enable"):
             GPIO.output(23,True)#enable sound
-            print 'Enter Play Sound'
+            #print 'Enter Play Sound'
             if(time.time() > timePlaySound+sound_time_OverSpeed):
-                print 'Enter Play Sound with sound'
+                #print 'Enter Play Sound with sound'
                 try:
                     pygame.mixer.music.play()
                     print 'Play Over Speed'

@@ -11,6 +11,8 @@ import struct
 
 REMOTE_SERVER = "www.google.com"
 flagDetectHW_GPS = False
+VERSION_FW = 34
+version_config = 34
 
 def internet_on():
     try:
@@ -87,10 +89,11 @@ def SendStatusFun(message):
             return False
 
         if flagDetectHW_GPS == True:
-            api[2] += '_GPS_HW'
+            api[2] += '_HW_35_'
         else:
-            api[2] += '_GPS_UC'
-
+            api[2] += '_UC_35_'
+        api[2] += version_config
+        
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
         print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message))
         print ('content     ' + resp.content) 
@@ -232,10 +235,11 @@ except :
 #time.sleep(10)
 #os.system('clear') #clear the terminal (optional)
 
-
-resp = requests.get('http://188.166.197.107/Config_API.php?IMEI=861075028784957')
-print resp.json()['API_NTI']
-
+try:
+    resp = requests.get('http://188.166.197.107/Config_API.php?IMEI=861075028784957')
+    print resp.json()['API_NTI']
+except :
+  print "Get config error"
 #{u'VERSION': u'72b1d9e5ef932f91e17b603f0cc0492cafa4a5db', u'TIME_PIC': u'0', u'CRASH_GAIN': u'10', u'REPO': u'pihos2', u'NUM': u'1',
 # u'API_PIC': u'http://safetyam.tely360.com/api/upload.php', u'TIME_GPS': u'1', u'IMEI': u'861075028784957',  
 # u'API_NTI': u'http://safetyam.tely360.com/api/notification.php', u'ID': u'99', u'API_GPS': u'http://safetyam.tely360.com/api/tracking.php', u'TIME_VDO': u'10'}
@@ -303,6 +307,11 @@ timepic = ConfigSectionMap('Profile')['timepic']
 print timepic
 nti_url = ConfigSectionMap('Profile')['nti_api']
 print nti_url
+try:
+  version_config = ConfigSectionMap('Profile')['version']
+except:
+  print("exception version")
+print  'version > ',version_config
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM) ## Use board pin numbering

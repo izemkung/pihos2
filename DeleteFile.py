@@ -95,6 +95,27 @@ if  count > 100:
     
 if per < 80 :
     print 'Memmory < 80% Ok!!'
+
+    vdoFileError = True
+    while(vdoFileError):
+        vdoFileError = False
+        OldVideo0 = min(glob.iglob('/home/pi/usb/vdo/ch0/*.[Aa][Vv][Ii]'), key=os.path.getsize)
+        OldVideo1 = min(glob.iglob('/home/pi/usb/vdo/ch1/*.[Aa][vv][Ii]'), key=os.path.getsize) 
+        
+        #print("Size (In bytes) of '%s':" %OldVideo1, os.path.getsize(OldVideo0) ) 
+        #print("Size (In bytes) of '%s':" %OldVideo0, os.path.getsize(OldVideo1) ) 
+
+        if(os.path.getsize(OldVideo0) < 50000):
+            os.remove(OldVideo0)
+            print("Remove : '%s'" %OldVideo0) 
+            vdoFileError = True
+
+        if(os.path.getsize(OldVideo1) < 50000):
+            os.remove(OldVideo1)
+            print("Remove : '%s'" %OldVideo1) 
+            vdoFileError = True
+        time.sleep(1)
+
     time.sleep(60)
     
 if per > 80 :    

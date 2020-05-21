@@ -16,6 +16,8 @@ import httplib
 import threading
 import ConfigParser
 import signal
+import json
+
 
 class Timeout():
     """ Timeout for use with the `with` statement. """
@@ -72,6 +74,8 @@ timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
 
+api = "http://node-storage-server.aocopt.com/admin/upload"
+print api
 
 floderOk = 0
 
@@ -124,11 +128,6 @@ time.tzset()
 current_time = 0
 last_time = 0
 
-#firm rate 
-last_time_fr = 0
-countPicInSec = 0
-frameRate = 0
-
 countPic = 0
 endtime = 0
 framePic = None 
@@ -145,6 +144,9 @@ KillPs = False
 jpg_as_text0 = None
 jpg_as_text1 = None
 flagPic = False
+freamRate = 0
+countFream = 0
+timeFreamRate = 0
 
 def myThreadVDO ():
     global jpg_as_text0
@@ -153,10 +155,10 @@ def myThreadVDO ():
     global KillPs
     global flagUSBOk
     global endtime
-    global last_time_fr
-    global countPicInSec
-    global frameRate 
-    global current_time
+    global freamRate
+    global countFream
+    global timeFreamRate
+
     cap0 = cv2.VideoCapture(0)
     cap1 = cv2.VideoCapture(1)
 
@@ -205,13 +207,12 @@ def myThreadVDO ():
 
     while(cap0.isOpened() and cap1.isOpened()):
         current_time = time.time() * 1000
+        
         ret0, frame0 = cap0.read()
         ret1, frame1 = cap1.read()
         if(flagUSBOk == True):
             out0.write(frame0)
             out1.write(frame1)
-            countPicInSec += 1
-
 
         if ret0 == True and ret1 == True:
             
@@ -230,27 +231,23 @@ def myThreadVDO ():
                 jpg_as_text0 = base64.b64encode(buffer0)
                 jpg_as_text1 = base64.b64encode(buffer1)
                 flagPic = True
-                #print("Img ready")
-                
+                #print("Capp!!!")
+                #print("_________")
+                #print(jpg_as_text0)
+                #print("_________")
             
                         #break 
             #out.write(frame)
-
-        if current_time - last_time_fr > 1000:
-            last_time_fr = current_time
-            frameRate = countPicInSec
-            countPicInSec = 0
-            print("Send > "+str(countPic_T)+" FreamRate > "+str(frameRate)+" ms" + " Run Time > "+str((current_time/1000) - startTime) ) 
-
+        countFream += 1
+        if current_time - timeFreamRate > 1000:
+            timeFreamRate = current_time
+            freamRate = countFream
+            countFream = 0
 
         if KillPs == True:
-            print "KillPs vdo"
             break
 
-        if ((current_time/1000) - startTime) > (60 * int(timevdo)):
-            break 
 
-    KillPs == True
     if(flagUSBOk == True):    
         out0.release()
         out1.release()
@@ -258,8 +255,6 @@ def myThreadVDO ():
     cap1.release()
     print("T1 Kills")
 
-
-#==============main==============
 current_time_T = 0
 last_time_T = 0
 countPic_T = 0
@@ -276,9 +271,10 @@ t1.start()
 
 while (True):
     current_time_T = time.time() * 1000
-    time.sleep(0.2)
+    
     if flagPic == True:
         if current_time_T - last_time_T > 500:
+            
             last_time_T = current_time_T
             flagPic = False
             #GPIO.output(17,True)
@@ -288,7 +284,17 @@ while (True):
                 GPIO.output(17,False)
                 r = 'error'
                 with Timeout(5):
-                    r = requests.post(pic_url, data=data)
+                    
+                    headers = {'Host': 'node-storage-server.aocopt.com','Content-type': 'application/json'}
+                    data = {
+                    'images_name_1': jpg_as_text0,
+                    'images_name_2': jpg_as_text1,
+                    'ambulance_id':  int(id) 
+                        }
+
+                    r = requests.post(api, json=data,headers=headers)
+                    #r = requests.post(api, data=data)
+                    #r = requests.post(pic_url, data=data)
                     #print('No timeout?')
                 
                     connectionError = 0
@@ -307,8 +313,11 @@ while (True):
                         #time.sleep(0.2)
                         GPIO.output(17,True)
                         countPic_T += 1
+                        print("Send > {0:2d} : {1:2d} fs, Time > {2:4.2f}, S > {3}".format(countPic_T,freamRate,(current_time_T/1000) - startTime,r))
                         
-                    print("Send > "+str(r.status_code)) 
+                        #print r
+                        #print r.json()
+                        
                     
             except:
                 #print('timeout')
@@ -316,16 +325,14 @@ while (True):
                 if connectionError > 10:
                     connectionError = 0
                     print "Connection Error or Time Out"
-                    #break
+                    break
                     
            
             #print("Run Time > "+str((current_time_T/1000) - startTime) )
             #print("condi  > "+str(60 * int(timevdo) ))
 
-    
-    if KillPs == True:
-        print "KillPs up pic"
-        break
+    if ((current_time_T/1000) - startTime) > (60 * int(timevdo)):
+        break 
 
     if (t1.isAlive() == False):
         print "Thread is not Alive"
