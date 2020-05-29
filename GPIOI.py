@@ -11,8 +11,8 @@ import struct
 
 REMOTE_SERVER = "www.google.com"
 flagDetectHW_GPS = False
-VERSION_FW = 34
-version_config = "34"
+VERSION_FW = 35
+version_config = "35"
 
 def internet_on():
     try:
@@ -43,64 +43,62 @@ def SendAlartFun(channel):
         print 'SendAlartFun Connection lost'
 
 def SendStatusFun(message):
-    try:
-        ser.flushInput()
-        ser.flushOutput()
-        time.sleep(0.1)
-        ser.write('AT+QCCID\r')
-        time.sleep(2)
+    
+    ser.flushInput()
+    ser.flushOutput()
+    time.sleep(0.1)
+    ser.write('AT+QCCID\r')
+    time.sleep(2)
 
-        for num in range(0, 10):
-            bufsid = ser.readline()
-            if len(bufsid) >= 20 :
-                break
+    for num in range(0, 10):
+        bufsid = ser.readline()
+        if len(bufsid) >= 20 :
+            break
 
-        replacements = (',', '\r', '\n', '?')
-        for r in replacements:
-            bufsid = bufsid.replace(r, ' ')
-        SID = bufsid.split(" ")
-        #print SID
-        #SID = CID[1]
-        
-        ser.write('AT+GSN\r')
-        time.sleep(1)
-        for num in range(0, 10):
-            bufemi = ser.readline()
-            if len(bufemi) >= 10 :
-                break
+    replacements = (',', '\r', '\n', '?')
+    for r in replacements:
+        bufsid = bufsid.replace(r, ' ')
+    SID = bufsid.split(" ")
+    #print SID
+    #SID = CID[1]
+    
+    ser.write('AT+GSN\r')
+    time.sleep(1)
+    for num in range(0, 10):
+        bufemi = ser.readline()
+        if len(bufemi) >= 10 :
+            break
 
-        replacements = (',', '\r', '\n', '?')
-        for r in replacements:
-            bufemi = bufemi.replace(r, ' ')
-        IMEI = bufemi.split(" ")
-        #print IMEI
-        #IMEI = emi[0]
-        sidOk = True
-        
-        #print id
-        ip = get_ip_address('ppp0') 
-        #print ip
-        #print SID
-        #print IMEI
-        api = nti_url.split("/")
-        #print api[2]
+    replacements = (',', '\r', '\n', '?')
+    for r in replacements:
+        bufemi = bufemi.replace(r, ' ')
+    IMEI = bufemi.split(" ")
+    #print IMEI
+    #IMEI = emi[0]
+    sidOk = True
+    
+    #print id
+    ip = get_ip_address('ppp0') 
+    #print ip
+    #print SID
+    #print IMEI
+    api = nti_url.split("/")
+    #print api[2]
 
-        if len(SID[1]) <= 13:
-            return False
+    if len(SID[1]) <= 13:
+        return False
 
-        if flagDetectHW_GPS == True:
-            api[2] += '_HW_35_'
-        else:
-            api[2] += '_UC_35_'
-        api[2] += version_config
-        
-        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
-        print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message))
-        print ('content     ' + resp.content) 
-        return True
-    except:
-        print 'SendStatusFun Connection lost'
-    return False
+    if flagDetectHW_GPS == True:
+        api[2] += '_HW_35_'
+    else:
+        api[2] += '_UC_35_'
+    api[2] += version_config
+    
+    resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
+    print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message))
+    print ('content     ' + resp.content) 
+    return True
+    
 
 
         
@@ -310,8 +308,8 @@ print nti_url
 try:
   version_config = ConfigSectionMap('Profile')['version']
 except:
-  version_config = "35"
   print("exception version")
+  version_config = "35"
 print  'version > ',version_config
 
 GPIO.setwarnings(False)
