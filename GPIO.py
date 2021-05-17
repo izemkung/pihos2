@@ -254,6 +254,7 @@ def UpdateConfigs():
 
     f = open('/home/pi/_config.ini', "w")
     f.write("[Profile]")
+    f.write("\nconfig: "+ str(configJSON['config']))
     f.write("\nid: "+ str(configJSON['id']))
     f.write("\ntimevdo: "+ str(configJSON['timevdo']))
     f.write("\ntimepic: "+ str(configJSON['timepic']))
