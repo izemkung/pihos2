@@ -124,6 +124,11 @@ time.tzset()
 current_time = 0
 last_time = 0
 
+#firm rate 
+last_time_fr = 0
+countPicInSec = 0
+frameRate = 0
+
 countPic = 0
 endtime = 0
 framePic = None 
@@ -148,7 +153,10 @@ def myThreadVDO ():
     global KillPs
     global flagUSBOk
     global endtime
-
+    global last_time_fr
+    global countPicInSec
+    global frameRate 
+    global current_time
     cap0 = cv2.VideoCapture(0)
     cap1 = cv2.VideoCapture(1)
 
@@ -202,6 +210,8 @@ def myThreadVDO ():
         if(flagUSBOk == True):
             out0.write(frame0)
             out1.write(frame1)
+            countPicInSec += 1
+
 
         if ret0 == True and ret1 == True:
             
@@ -217,20 +227,30 @@ def myThreadVDO ():
                 ret0, buffer0 = cv2.imencode('.jpg', framePic0)
                 ret1, buffer1 = cv2.imencode('.jpg', framePic1)
 
-                jpg_as_text0 = buffer0
-                jpg_as_text1 = buffer1
-                #jpg_as_text0 = base64.b64encode(buffer0)
-                #jpg_as_text1 = base64.b64encode(buffer1)
+                jpg_as_text0 = base64.b64encode(buffer0)
+                jpg_as_text1 = base64.b64encode(buffer1)
                 flagPic = True
-                print("Capp!!!")
+                #print("Img ready")
                 
             
                         #break 
             #out.write(frame)
-            
+
+        if current_time - last_time_fr > 1000:
+            last_time_fr = current_time
+            frameRate = countPicInSec
+            countPicInSec = 0
+            print("Send > "+str(countPic_T)+" FreamRate > "+str(frameRate)+" ms" + " Run Time > "+str((current_time/1000) - startTime) ) 
+
+
         if KillPs == True:
+            print "KillPs vdo"
             break
 
+        if ((current_time/1000) - startTime) > (60 * int(timevdo)):
+            break 
+
+    KillPs == True
     if(flagUSBOk == True):    
         out0.release()
         out1.release()
@@ -238,6 +258,8 @@ def myThreadVDO ():
     cap1.release()
     print("T1 Kills")
 
+
+#==============main==============
 current_time_T = 0
 last_time_T = 0
 countPic_T = 0
@@ -254,38 +276,21 @@ t1.start()
 
 while (True):
     current_time_T = time.time() * 1000
-    
+    time.sleep(0.2)
     if flagPic == True:
         if current_time_T - last_time_T > 500:
             last_time_T = current_time_T
             flagPic = False
             #GPIO.output(17,True)
-
-            #url = "http://202.183.192.154:5000/api/tracking/postAmbulanceImageUpload"
-            url = "http://202.183.192.149:3000/fileupload"
-            payload={ 'ID': id,
-            'Time': '2',
-            'ambulance_id': str(id),
-            'ambulance_static_id': str(id),
-            'images_count': '2'}
-            #files=[
-            #('images_name_1',('im1.jpg',jpg_as_text0.tostring(),'image/jpg')),
-            #('images_name_2',('im2.jpg',jpg_as_text1.tostring(),'image/jpg'))
-            #]
-
-            files=[
-            ('CAM1',('im1.jpg',jpg_as_text0.tostring(),'image/jpg')),
-            ('CAM2',('im2.jpg',jpg_as_text1.tostring(),'image/jpg'))
-            ]
-            headers = {}
+            data = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
             #flagPic = False
             try:
                 GPIO.output(17,False)
                 r = 'error'
                 with Timeout(5):
-                    r = requests.request("POST", url, headers=headers, data=payload, files=files)
+                    r = requests.post(pic_url, data=data)
                     #print('No timeout?')
-                    print(r.text)
+                
                     connectionError = 0
 
                     if(r.status_code != 200 ):
@@ -302,7 +307,8 @@ while (True):
                         #time.sleep(0.2)
                         GPIO.output(17,True)
                         countPic_T += 1
-                        print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" + "Run Time > "+str((current_time_T/1000) - startTime) ) 
+                        
+                    print("Send > "+str(r.status_code)) 
                     
             except:
                 #print('timeout')
@@ -310,14 +316,16 @@ while (True):
                 if connectionError > 10:
                     connectionError = 0
                     print "Connection Error or Time Out"
-                    break
+                    #break
                     
            
             #print("Run Time > "+str((current_time_T/1000) - startTime) )
             #print("condi  > "+str(60 * int(timevdo) ))
 
-    if ((current_time_T/1000) - startTime) > (60 * int(timevdo)):
-        break 
+    
+    if KillPs == True:
+        print "KillPs up pic"
+        break
 
     if (t1.isAlive() == False):
         print "Thread is not Alive"

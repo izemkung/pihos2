@@ -91,33 +91,17 @@ while True:
   #print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed)
         
   #print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track)
-  
+  #http://safetyam.tely360.com/api/tracking1.php?ambulance_id=99&tracking_latitude=1.1&tracking_longitude=1.1&tracking_speed=60&tracking_heading=100
   
   if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
     GPIO.output(22,True)
     try:
-
-      url = "http://202.183.192.154:5000/api/tracking/postAmbulanceTracking"
-
-      payload={'ambulance_id': id,
-      'ambulance_static_id': id,
-      'tracking_latitude': gpsd.fix.latitude,
-      'tracking_longitude': gpsd.fix.longitude,
-      'tracking_heading': gpsd.fix.track,
-      'tracking_speed': gpsd.fix.speed}
-      files=[
-
-      ]
-      headers = {}
-
-      resp = requests.request("POST", url, headers=headers, data=payload, files=files)
-
-      #resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
+      resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
       
       if(resp.status_code != 200 ):
         print 'status_code ' , resp.status_code
       #print 'headers     ' , resp.headers
-        print 'content     ' , resp.content
+      #print 'content     ' , resp.content
       #GPIO.output(27,True)
       if(resp.status_code == 200 ):
         countSend += 1

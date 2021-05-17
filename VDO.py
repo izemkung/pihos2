@@ -72,6 +72,13 @@ timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
 
+config = 1
+try:
+  config =  ConfigSectionMap('Profile')['config']
+except:
+  print("exception config")
+
+print 'config > ' , config
 
 floderOk = 0
 
@@ -124,11 +131,6 @@ time.tzset()
 current_time = 0
 last_time = 0
 
-#firm rate 
-last_time_fr = 0
-countPicInSec = 0
-frameRate = 0
-
 countPic = 0
 endtime = 0
 framePic = None 
@@ -153,10 +155,7 @@ def myThreadVDO ():
     global KillPs
     global flagUSBOk
     global endtime
-    global last_time_fr
-    global countPicInSec
-    global frameRate 
-    global current_time
+
     cap0 = cv2.VideoCapture(0)
     cap1 = cv2.VideoCapture(1)
 
@@ -210,8 +209,6 @@ def myThreadVDO ():
         if(flagUSBOk == True):
             out0.write(frame0)
             out1.write(frame1)
-            countPicInSec += 1
-
 
         if ret0 == True and ret1 == True:
             
@@ -224,33 +221,23 @@ def myThreadVDO ():
                 #cv2.imwrite(args["output"]+  'pic/ch' +str(args["idcamera"])  +'/img_{}.jpg'.format(int(current_time)), framePic)
                 endtime = current_time
 
-                ret0, buffer0 = cv2.imencode('.jpg', framePic0)
-                ret1, buffer1 = cv2.imencode('.jpg', framePic1)
+                ret0, buffer0 = cv2.imencode('.png', framePic0)
+                ret1, buffer1 = cv2.imencode('.png', framePic1)
 
-                jpg_as_text0 = base64.b64encode(buffer0)
-                jpg_as_text1 = base64.b64encode(buffer1)
+                jpg_as_text0 = buffer0
+                jpg_as_text1 = buffer1
+                #jpg_as_text0 = base64.b64encode(buffer0)
+                #jpg_as_text1 = base64.b64encode(buffer1)
                 flagPic = True
-                #print("Img ready")
+                print("Capp!!!")
                 
             
                         #break 
             #out.write(frame)
-
-        if current_time - last_time_fr > 1000:
-            last_time_fr = current_time
-            frameRate = countPicInSec
-            countPicInSec = 0
-            print("Send > "+str(countPic_T)+" FreamRate > "+str(frameRate)+" ms" + " Run Time > "+str((current_time/1000) - startTime) ) 
-
-
+            
         if KillPs == True:
-            print "KillPs vdo"
             break
 
-        if ((current_time/1000) - startTime) > (60 * int(timevdo)):
-            break 
-
-    KillPs == True
     if(flagUSBOk == True):    
         out0.release()
         out1.release()
@@ -258,8 +245,6 @@ def myThreadVDO ():
     cap1.release()
     print("T1 Kills")
 
-
-#==============main==============
 current_time_T = 0
 last_time_T = 0
 countPic_T = 0
@@ -276,21 +261,63 @@ t1.start()
 
 while (True):
     current_time_T = time.time() * 1000
-    time.sleep(0.2)
+    
     if flagPic == True:
         if current_time_T - last_time_T > 500:
             last_time_T = current_time_T
             flagPic = False
             #GPIO.output(17,True)
-            data = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
+
+            #url = "http://202.183.192.154:5000/api/tracking/postAmbulanceImageUpload"
+            
+            if (config == 2):
+                url = "http://27.254.149.186:5000/api/snapshot/postAmbulanceImageUpload"
+                payload={ 
+                'ambulance_id':  str(id),
+                'ambulance_box_code': str(id),
+                'images_count': '2'
+                } 
+                jpg_as_text0 = jpg_as_text0.tostring()
+                jpg_as_text1 = jpg_as_text1.tostring()
+                jpg_as_text2 = ''
+                jpg_as_text3 = ''
+                files=[
+                ('images_name_1',('im1.png',jpg_as_text0,'image/png')),
+                ('images_name_2',('im2.png',jpg_as_text1,'image/png')),
+                ('images_name_3',('im3.png',jpg_as_text2,'image/png')),
+                ('images_name_4',('im4.png',jpg_as_text3,'image/png'))
+                ]
+                headers = {}
+             
+            else:
+                url = pic_url
+                headers = {}
+                files = {}
+                jpg_as_text0 = base64.b64encode(jpg_as_text0)
+                jpg_as_text1 = base64.b64encode(jpg_as_text1)
+                payload = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
+            #dbSrver
+            #url = "http://202.183.192.149:3000/fileupload"
+            #payload={ 'ID': id,
+            #'Time': '2',
+            #'ambulance_id': str(id),
+            #'ambulance_static_id': str(id),
+            #'images_count': '2'}
+            #files=[
+            #('images_name_1',('im1.jpg',jpg_as_text0.tostring(),'image/jpg')),
+            #('images_name_2',('im2.jpg',jpg_as_text1.tostring(),'image/jpg'))
+            #]
+
+            
             #flagPic = False
             try:
                 GPIO.output(17,False)
                 r = 'error'
                 with Timeout(5):
-                    r = requests.post(pic_url, data=data)
+                    r = requests.request("POST", url, headers=headers, data=payload, files=files)
                     #print('No timeout?')
-                
+                    print(r.text)
+                    print(r.status_code)
                     connectionError = 0
 
                     if(r.status_code != 200 ):
@@ -307,8 +334,7 @@ while (True):
                         #time.sleep(0.2)
                         GPIO.output(17,True)
                         countPic_T += 1
-                        
-                    print("Send > "+str(r.status_code)) 
+                        print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" + "Run Time > "+str((current_time_T/1000) - startTime) ) 
                     
             except:
                 #print('timeout')
@@ -316,16 +342,14 @@ while (True):
                 if connectionError > 10:
                     connectionError = 0
                     print "Connection Error or Time Out"
-                    #break
+                    break
                     
            
             #print("Run Time > "+str((current_time_T/1000) - startTime) )
             #print("condi  > "+str(60 * int(timevdo) ))
 
-    
-    if KillPs == True:
-        print "KillPs up pic"
-        break
+    if ((current_time_T/1000) - startTime) > (60 * int(timevdo)):
+        break 
 
     if (t1.isAlive() == False):
         print "Thread is not Alive"

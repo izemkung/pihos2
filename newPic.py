@@ -79,6 +79,7 @@ while True:
 
     hasher1 = hashlib.md5()
     hasher2 = hashlib.md5()
+    hasher3 = hashlib.md5()
     with open('/home/pi/config.ini', 'rb') as afile:
         buf = afile.read(BLOCKSIZE)
         while len(buf) > 0:
@@ -93,21 +94,42 @@ while True:
             buf = afile.read(BLOCKSIZE)
     #print(hasher2.hexdigest())
 
+    with open('/home/pi/_config.ini', 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher3.update(buf)
+            buf = afile.read(BLOCKSIZE)
+
     info1 = os.stat('/home/pi/config.ini')
     info2 = os.stat('/home/pi/usb/config.ini')
+    info3 = os.stat('/home/pi/_config.ini')
     #print info1.st_mtime
     #print info2.st_mtime
     #fileConfig1 = max(glob.iglob('/home/pi/config.ini'), key=os.path.getctime)
     #fileConfig2 = max(glob.iglob('/home/pi/usb/config.ini'), key=os.path.getctime)
+    
+    print "Curren Config > " + hasher1.hexdigest()
+    print "USB    Config > " + hasher2.hexdigest()
+    print "Online Config > " + hasher3.hexdigest()
 
-    if hasher1.hexdigest() !=  hasher2.hexdigest():
+    if hasher1.hexdigest() !=  hasher3.hexdigest():
         os.system('sudo rm -rf /home/pi/config.ini')
-        os.system('sudo cp /home/pi/usb/config.ini /home/pi/config.ini')
-        #os.system('sudo rm -rf /home/pi/usb/config.ini')
-        #os.system('sudo cp /home/pi/config.ini /home/pi/usb/config.ini')
+        os.system('sudo cp /home/pi/_config.ini /home/pi/config.ini')
         print "New File Config"
     else :
         print "File Config Ok"
+
+
+    #if hasher1.hexdigest() !=  hasher2.hexdigest():
+    #    os.system('sudo rm -rf /home/pi/config.ini')
+    #    os.system('sudo cp /home/pi/usb/config.ini /home/pi/config.ini')
+        #os.system('sudo rm -rf /home/pi/usb/config.ini')
+        #os.system('sudo cp /home/pi/config.ini /home/pi/usb/config.ini')
+    #    print "New File Config"
+    #else :
+    #    print "File Config Ok"
+
+
     time.sleep(60)
     #GPIO.output(17,False)
     if time.time() > timeout:
