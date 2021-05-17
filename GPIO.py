@@ -243,13 +243,35 @@ def UpdateConfigs():
     global id
     global version_config
     print IMEI_CONFIG
-    print 'http://159.89.208.90:5001/config/' + IMEI_CONFIG[0] + '?ambulance_id=' + id + 'version=' + version_config
+    print 'http://159.89.208.90:5001/config/' + IMEI_CONFIG[0] + '?ambulance_id=' + id + '&version=' + version_config
     try:
         resp = requests.get('http://159.89.208.90:5001/config/' + IMEI_CONFIG[0] + '?ambulance_id=' + id + '&version=' + version_config)
         #resp = requests.get('http://188.166.197.107/Config_API.php?IMEI=861075028784957')
-        print resp.json()
+        configJSON = resp.json()
+        print configJSON
     except :
         print "Get config error"
+
+    f = open('/home/pi/_config.ini', "w")
+    f.write("[Profile]")
+    f.write("\nid: "+ str(configJSON['id']))
+    f.write("\ntimevdo: "+ str(configJSON['timevdo']))
+    f.write("\ntimepic: "+ str(configJSON['timepic']))
+    f.write("\ngps_api: "+ configJSON['gps_api'])
+    f.write("\npic_api: "+ configJSON['pic_api'])
+    f.write("\nnti_api: "+ configJSON['nti_api'])
+    f.write("\ngps_uc20: "+ configJSON['gps_uc20'])
+    f.write("\nsound: "+ configJSON['sound'])
+    f.write("\nover_speed: "+ str(configJSON['over_speed']))
+    f.write("\nkey0: "+ configJSON['key0'])
+    f.write("\nkey1: "+ configJSON['key1'])
+    f.write("\nrest: "+ configJSON['rest'])
+    f.write("\n[Value]")
+    f.write("\nenable : 0")
+    f.write("\ndisable : 0")
+
+    f.close()
+
 #{u'VERSION': u'72b1d9e5ef932f91e17b603f0cc0492cafa4a5db', u'TIME_PIC': u'0', u'CRASH_GAIN': u'10', u'REPO': u'pihos2', u'NUM': u'1',
 # u'API_PIC': u'http://safetyam.tely360.com/api/upload.php', u'TIME_GPS': u'1', u'IMEI': u'861075028784957',  
 # u'API_NTI': u'http://safetyam.tely360.com/api/notification.php', u'ID': u'99', u'API_GPS': u'http://safetyam.tely360.com/api/tracking.php', u'TIME_VDO': u'10'}
