@@ -96,12 +96,28 @@ while True:
   if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
     GPIO.output(22,True)
     try:
-      resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
+
+      url = "http://202.183.192.154:5000/api/tracking/postAmbulanceTracking"
+
+      payload={'ambulance_id': id,
+      'ambulance_static_id': id,
+      'tracking_latitude': gpsd.fix.latitude,
+      'tracking_longitude': gpsd.fix.longitude,
+      'tracking_heading': gpsd.fix.track,
+      'tracking_speed': gpsd.fix.speed}
+      files=[
+
+      ]
+      headers = {}
+
+      resp = requests.request("POST", url, headers=headers, data=payload, files=files)
+
+      #resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
       
       if(resp.status_code != 200 ):
         print 'status_code ' , resp.status_code
       #print 'headers     ' , resp.headers
-      #print 'content     ' , resp.content
+        print 'content     ' , resp.content
       #GPIO.output(27,True)
       if(resp.status_code == 200 ):
         countSend += 1

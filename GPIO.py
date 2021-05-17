@@ -13,6 +13,7 @@ REMOTE_SERVER = "www.google.com"
 flagDetectHW_GPS = False
 VERSION_FW = 34
 version_config = "34"
+IMEI_CONFIG = ""
 
 def internet_on():
     try:
@@ -43,6 +44,7 @@ def SendAlartFun(channel):
         print 'SendAlartFun Connection lost'
 
 def SendStatusFun(message):
+    global IMEI_CONFIG
     try:
         ser.flushInput()
         ser.flushOutput()
@@ -73,6 +75,7 @@ def SendStatusFun(message):
         for r in replacements:
             bufemi = bufemi.replace(r, ' ')
         IMEI = bufemi.split(" ")
+        IMEI_CONFIG = IMEI
         #print IMEI
         #IMEI = emi[0]
         sidOk = True
@@ -235,11 +238,18 @@ except :
 #time.sleep(10)
 #os.system('clear') #clear the terminal (optional)
 
-try:
-    resp = requests.get('http://188.166.197.107/Config_API.php?IMEI=861075028784957')
-    print resp.json()['API_NTI']
-except :
-  print "Get config error"
+def UpdateConfigs():
+    global IMEI_CONFIG
+    global id
+    global version_config
+    print IMEI_CONFIG
+    print 'http://159.89.208.90:5001/config/' + IMEI_CONFIG[0] + '?ambulance_id=' + id + 'version=' + version_config
+    try:
+        resp = requests.get('http://159.89.208.90:5001/config/' + IMEI_CONFIG[0] + '?ambulance_id=' + id + '&version=' + version_config)
+        #resp = requests.get('http://188.166.197.107/Config_API.php?IMEI=861075028784957')
+        print resp.json()
+    except :
+        print "Get config error"
 #{u'VERSION': u'72b1d9e5ef932f91e17b603f0cc0492cafa4a5db', u'TIME_PIC': u'0', u'CRASH_GAIN': u'10', u'REPO': u'pihos2', u'NUM': u'1',
 # u'API_PIC': u'http://safetyam.tely360.com/api/upload.php', u'TIME_GPS': u'1', u'IMEI': u'861075028784957',  
 # u'API_NTI': u'http://safetyam.tely360.com/api/notification.php', u'ID': u'99', u'API_GPS': u'http://safetyam.tely360.com/api/tracking.php', u'TIME_VDO': u'10'}
@@ -335,6 +345,7 @@ while True:
         if internet_on() == True :  
             if(SendStatusFun('Power Start') == True):
                 sendStart = True
+                UpdateConfigs()
                 print sendStart
 
 #I/O Power off

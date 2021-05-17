@@ -217,8 +217,10 @@ def myThreadVDO ():
                 ret0, buffer0 = cv2.imencode('.jpg', framePic0)
                 ret1, buffer1 = cv2.imencode('.jpg', framePic1)
 
-                jpg_as_text0 = base64.b64encode(buffer0)
-                jpg_as_text1 = base64.b64encode(buffer1)
+                jpg_as_text0 = buffer0
+                jpg_as_text1 = buffer1
+                #jpg_as_text0 = base64.b64encode(buffer0)
+                #jpg_as_text1 = base64.b64encode(buffer1)
                 flagPic = True
                 print("Capp!!!")
                 
@@ -258,15 +260,32 @@ while (True):
             last_time_T = current_time_T
             flagPic = False
             #GPIO.output(17,True)
-            data = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
+
+            #url = "http://202.183.192.154:5000/api/tracking/postAmbulanceImageUpload"
+            url = "http://202.183.192.149:3000/fileupload"
+            payload={ 'ID': id,
+            'Time': '2',
+            'ambulance_id': str(id),
+            'ambulance_static_id': str(id),
+            'images_count': '2'}
+            #files=[
+            #('images_name_1',('im1.jpg',jpg_as_text0.tostring(),'image/jpg')),
+            #('images_name_2',('im2.jpg',jpg_as_text1.tostring(),'image/jpg'))
+            #]
+
+            files=[
+            ('CAM1',('im1.jpg',jpg_as_text0.tostring(),'image/jpg')),
+            ('CAM2',('im2.jpg',jpg_as_text1.tostring(),'image/jpg'))
+            ]
+            headers = {}
             #flagPic = False
             try:
                 GPIO.output(17,False)
                 r = 'error'
                 with Timeout(5):
-                    r = requests.post(pic_url, data=data)
+                    r = requests.request("POST", url, headers=headers, data=payload, files=files)
                     #print('No timeout?')
-                
+                    print(r.text)
                     connectionError = 0
 
                     if(r.status_code != 200 ):

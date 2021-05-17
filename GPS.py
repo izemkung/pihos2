@@ -91,7 +91,7 @@ while True:
   #print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed)
         
   #print  gps_url,'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track)
-  
+  #http://safetyam.tely360.com/api/tracking1.php?ambulance_id=99&tracking_latitude=1.1&tracking_longitude=1.1&tracking_speed=60&tracking_heading=100
   
   if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
     GPIO.output(22,True)
