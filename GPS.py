@@ -105,7 +105,7 @@ while True:
     GPIO.output(22,True)
     try:
 
-      url = "http://27.254.149.186:5000/api/tracking/postAmbulanceTracking"
+      url = "http://27.254.149.188:5000/api/tracking/postAmbulanceTracking"
 
       payload={'ambulance_id': id,
       'ambulance_box_code': id,
