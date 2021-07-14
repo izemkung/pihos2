@@ -332,8 +332,14 @@ else:
 Config = ConfigParser.ConfigParser()
 Config.read('/home/pi/config.ini')
 
+try:
+    id =  ConfigSectionMap('Profile')['id']
+    print id
+except:
+    Config.read('/home/pi/usb/config.ini')  
+
 id =  ConfigSectionMap('Profile')['id']
-print id
+print id 
 timevdo = ConfigSectionMap('Profile')['timevdo']
 print timevdo
 timepic = ConfigSectionMap('Profile')['timepic']
