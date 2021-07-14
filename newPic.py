@@ -54,11 +54,16 @@ time.sleep(2)
 Config = ConfigParser.ConfigParser()
 Config.read('/home/pi/config.ini')
 
+try:
+    id =  ConfigSectionMap('Profile')['id']
+except:
+    Config.read('/home/pi/usb/config.ini')
 id =  ConfigSectionMap('Profile')['id']
 timevdo = ConfigSectionMap('Profile')['timevdo']
 timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
+
 
 OldPic0 = ''
 OldPic1 = ''
