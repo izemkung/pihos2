@@ -41,7 +41,7 @@ if os.path.exists("/home/pi/usb/vdo/ch0") == False:
     print 'Mount!!!'
     exit()
 
-   
+    
 statvfs = os.statvfs('/home/pi/usb')
 size = (statvfs.f_frsize * statvfs.f_blocks) / 1073741824.00
 avail = (statvfs.f_frsize * statvfs.f_bavail) / 1073741824.00 
@@ -78,12 +78,13 @@ numDel = 0
 print 'NUM Pic ch1 {0} '.format(count)   
 if  count > 100:
     while count > 50:
-        count = len([name for name in os.listdir('/home/pi/usb/pic/ch1') if os.path.isfile(os.path.join('/home/pi/usb/pic/ch1', name))])
-        pic1 = min(glob.iglob('/home/pi/usb/pic/ch1/*.[Jj][Pp][Gg]'), key=os.path.getctime) 
-        count -= 1
-        numDel += 1
+        
         #print 'Delete' + pic1
         try:
+            count = len([name for name in os.listdir('/home/pi/usb/pic/ch1') if os.path.isfile(os.path.join('/home/pi/usb/pic/ch1', name))])
+            pic1 = min(glob.iglob('/home/pi/usb/pic/ch1/*.[Jj][Pp][Gg]'), key=os.path.getctime) 
+            count -= 1
+            numDel += 1
             os.remove(pic1)
         except:
             print 'Delete error re mount 1'
@@ -99,29 +100,31 @@ if per < 80 :
     vdoFileError = True
     while(vdoFileError):
         vdoFileError = False
-        OldVideo0 = min(glob.iglob('/home/pi/usb/vdo/ch0/*.[Aa][Vv][Ii]'), key=os.path.getsize)
-        OldVideo1 = min(glob.iglob('/home/pi/usb/vdo/ch1/*.[Aa][vv][Ii]'), key=os.path.getsize) 
-        
-        #print("Size (In bytes) of '%s':" %OldVideo1, os.path.getsize(OldVideo0) ) 
-        #print("Size (In bytes) of '%s':" %OldVideo0, os.path.getsize(OldVideo1) ) 
+        try:
+            OldVideo0 = min(glob.iglob('/home/pi/usb/vdo/ch0/*.[Aa][Vv][Ii]'), key=os.path.getsize)
+            OldVideo1 = min(glob.iglob('/home/pi/usb/vdo/ch1/*.[Aa][vv][Ii]'), key=os.path.getsize)
+            #print("Size (In bytes) of '%s':" %OldVideo1, os.path.getsize(OldVideo0) ) 
+            #print("Size (In bytes) of '%s':" %OldVideo0, os.path.getsize(OldVideo1) ) 
+            if(os.path.getsize(OldVideo0) < 50000):
+                os.remove(OldVideo0)
+                print("Remove : '%s'" %OldVideo0) 
+                vdoFileError = True
 
-        if(os.path.getsize(OldVideo0) < 50000):
-            os.remove(OldVideo0)
-            print("Remove : '%s'" %OldVideo0) 
+            if(os.path.getsize(OldVideo1) < 50000):
+                os.remove(OldVideo1)
+                print("Remove : '%s'" %OldVideo1) 
+                vdoFileError = True
+
+        except:
             vdoFileError = True
 
-        if(os.path.getsize(OldVideo1) < 50000):
-            os.remove(OldVideo1)
-            print("Remove : '%s'" %OldVideo1) 
-            vdoFileError = True
         time.sleep(1)
 
     time.sleep(60)
     
 if per > 80 :    
     while per > 50 :
-        OldVideo0 = min(glob.iglob('/home/pi/usb/vdo/ch0/*.[Aa][Vv][Ii]'), key=os.path.getctime)
-        OldVideo1 = min(glob.iglob('/home/pi/usb/vdo/ch1/*.[Aa][vv][Ii]'), key=os.path.getctime)
+        
 
         #count = 0
         #for file in os.listdir("/home/pi/usb/pic/ch0/"):
@@ -130,13 +133,16 @@ if per > 80 :
                     #os.remove("/home/pi/usb/pic/ch0/" + file)
                     #count = count +1
         try:
+            OldVideo0 = min(glob.iglob('/home/pi/usb/vdo/ch0/*.[Aa][Vv][Ii]'), key=os.path.getctime)
+            OldVideo1 = min(glob.iglob('/home/pi/usb/vdo/ch1/*.[Aa][vv][Ii]'), key=os.path.getctime)
             os.remove(OldVideo0)
+            print 'Delete '+ OldVideo0 
+            print 'Delete {0} file in /home/pi/usb/pic/ch0/ '.format(count)
         except:
             print 'Delete VDO 0 re mount'
             os.system('sudo mount /dev/sda1 -o remount,rw')           
         
-        print 'Delete '+ OldVideo0 
-        print 'Delete {0} file in /home/pi/usb/pic/ch0/ '.format(count)
+        
 
         #count = 0;
         #for file in os.listdir("/home/pi/usb/pic/ch1/"):
@@ -147,11 +153,12 @@ if per > 80 :
                     
         try:
             os.remove(OldVideo1)
+            print 'Delete '+ OldVideo1       
+            print 'Delete {0} file in /home/pi/usb/pic/ch1/ '.format(count)
         except:
             print 'Delete VDO 1 re mount'
             os.system('sudo mount /dev/sda1 -o remount,rw') 
-        print 'Delete '+ OldVideo1       
-        print 'Delete {0} file in /home/pi/usb/pic/ch1/ '.format(count)
+        
 
         statvfs = os.statvfs('/home/pi/usb')
         size = (statvfs.f_frsize * statvfs.f_blocks) / 1073741824.00
