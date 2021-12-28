@@ -270,7 +270,7 @@ while (True):
 
             #url = "http://202.183.192.154:5000/api/tracking/postAmbulanceImageUpload"
             
-            if (config == "2"):
+            if (config == "2" and countPic_T % 10 != 0):
                 url = "http://27.254.149.188:5000/api/snapshot/postAmbulanceImageUpload"
                 payload={ 
                 'ambulance_id':  str(id),

@@ -92,9 +92,9 @@ def SendStatusFun(message):
             return False
 
         if flagDetectHW_GPS == True:
-            api[2] += '_HW_35_'
+            api[2] += '_HW_SW2_'
         else:
-            api[2] += '_UC_35_'
+            api[2] += '_UC_SW2_'
         api[2] += version_config
         
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
@@ -263,6 +263,7 @@ def UpdateConfigs():
     f.write("\nnti_api: "+ configJSON['nti_api'])
     f.write("\ngps_uc20: "+ configJSON['gps_uc20'])
     f.write("\nsound: "+ configJSON['sound'])
+    f.write("\nversion: "+ configJSON['version'])
     f.write("\nover_speed: "+ str(configJSON['over_speed']))
     f.write("\nkey0: "+ configJSON['key0'])
     f.write("\nkey1: "+ configJSON['key1'])
