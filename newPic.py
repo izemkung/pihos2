@@ -85,25 +85,34 @@ while True:
     hasher1 = hashlib.md5()
     hasher2 = hashlib.md5()
     hasher3 = hashlib.md5()
-    with open('/home/pi/config.ini', 'rb') as afile:
-        buf = afile.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher1.update(buf)
+    try :
+        with open('/home/pi/config.ini', 'rb') as afile:
             buf = afile.read(BLOCKSIZE)
-    #print(hasher1.hexdigest())
+            while len(buf) > 0:
+                hasher1.update(buf)
+                buf = afile.read(BLOCKSIZE)
+        #print(hasher1.hexdigest())
+    except: 
+        print "current Config error"
 
-    with open('/home/pi/usb/config.ini', 'rb') as afile:
-        buf = afile.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher2.update(buf)
+    try :
+        with open('/home/pi/usb/config.ini', 'rb') as afile:
             buf = afile.read(BLOCKSIZE)
-    #print(hasher2.hexdigest())
+            while len(buf) > 0:
+                hasher2.update(buf)
+                buf = afile.read(BLOCKSIZE)
+        #print(hasher2.hexdigest())
+    except: 
+        print "usb Config error"
 
-    with open('/home/pi/_config.ini', 'rb') as afile:
-        buf = afile.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher3.update(buf)
+    try :
+        with open('/home/pi/_config.ini', 'rb') as afile:
             buf = afile.read(BLOCKSIZE)
+            while len(buf) > 0:
+                hasher3.update(buf)
+                buf = afile.read(BLOCKSIZE)
+    except: 
+        print "Online Config error"
 
     info1 = os.stat('/home/pi/config.ini')
     info2 = os.stat('/home/pi/usb/config.ini')

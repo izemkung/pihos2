@@ -72,7 +72,7 @@ timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
 pic_url = ConfigSectionMap('Profile')['pic_api']
 
-config = 1
+config = 2
 try:
   config =  ConfigSectionMap('Profile')['config']
 except:
