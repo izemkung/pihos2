@@ -121,6 +121,8 @@ if floderOk == 6:
 else:
     flagUSBOk = False
 
+flagUSBOk = False
+
 print("USB > "+str(flagUSBOk) + " Time VDO > "+str(timevdo)) 
 os.environ['TZ'] = 'Asia/Bangkok'
 time.tzset()
