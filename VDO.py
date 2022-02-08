@@ -250,6 +250,7 @@ def myThreadVDO ():
 current_time_T = 0
 last_time_T = 0
 countPic_T = 0
+countPic_R = 0
 connectionError = 0
 while(GPIO.input(4) == 0):
     print("Pi Power Off Process!!")
@@ -271,8 +272,8 @@ while (True):
             #GPIO.output(17,True)
 
             #url = "http://202.183.192.154:5000/api/tracking/postAmbulanceImageUpload"
-            
-            if (config == "2" and countPic_T % 10 != 0):
+            countPic_R += 1
+            if (config == "2" and countPic_R % 20 != 0):
                 url = "http://27.254.149.188:5000/api/snapshot/postAmbulanceImageUpload"
                 payload={ 
                 'ambulance_id':  str(id),
