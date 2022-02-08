@@ -114,7 +114,7 @@ else:
 
 #print floderOk
 
-flagUSBOk = False
+#flagUSBOk = False
 
 if floderOk == 6:
     flagUSBOk = True
@@ -220,7 +220,9 @@ def myThreadVDO ():
                 cv2.putText(framePic0,"Ambulance "+ str(id) + " id 0"+" {}".format(strftime("%d %b %Y %H:%M:%S")) ,(2,(h/picResolotion) - 5), font, 0.3,(0,255,255),1)    
                 cv2.putText(framePic1,"Ambulance "+ str(id) + " id 1"+" {}".format(strftime("%d %b %Y %H:%M:%S")) ,(2,(h/picResolotion) - 5), font, 0.3,(0,255,255),1)    
                 
-                #cv2.imwrite(args["output"]+  'pic/ch' +str(args["idcamera"])  +'/img_{}.jpg'.format(int(current_time)), framePic)
+                #cv2.imwrite('/home/pi/usb/pic/ch0'+'/img_{}.jpg'.format(int(current_time)), framePic0)
+                #cv2.imwrite('/home/pi/usb/pic/ch1'+'/img_{}.jpg'.format(int(current_time)), framePic1)
+                
                 endtime = current_time
 
                 ret0, buffer0 = cv2.imencode('.png', framePic0)

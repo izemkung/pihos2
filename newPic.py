@@ -31,10 +31,12 @@ if os.path.exists("/home/pi/usb/config.ini") == False:
     #exit()
 
 
+os.system('sudo fsck -p /dev/sda1')
 os.system('sudo mount -o rw,remount /dev/sda1')
 os.system('sudo rm /home/pi/usb/pic/ch0/*.jpg') 
 os.system('sudo mount -o rw,remount /dev/sda1') 
 os.system('sudo rm /home/pi/usb/pic/ch1/*.jpg')
+
 
 try:
     os.system('sudo mount /dev/sda1 /home/pi/usb/')
@@ -57,7 +59,8 @@ Config.read('/home/pi/config.ini')
 try:
     id =  ConfigSectionMap('Profile')['id']
 except:
-    Config.read('/home/pi/usb/config.ini')
+    Config.read('/home/pi/_config.ini')
+
 id =  ConfigSectionMap('Profile')['id']
 timevdo = ConfigSectionMap('Profile')['timevdo']
 timepic = ConfigSectionMap('Profile')['timepic']
@@ -114,9 +117,23 @@ while True:
     except: 
         print "Online Config error"
 
-    info1 = os.stat('/home/pi/config.ini')
-    info2 = os.stat('/home/pi/usb/config.ini')
-    info3 = os.stat('/home/pi/_config.ini')
+    try :
+        info1 = os.stat('/home/pi/config.ini')
+    except: 
+        print "Read home/pi/config.ini error"
+
+    try :
+        info2 = os.stat('/home/pi/usb/config.ini')
+    except: 
+        print "Read /home/pi/usb/config.ini  error"
+
+    try :
+        info3 = os.stat('/home/pi/_config.ini')
+    except: 
+        print "Read /home/pi/_config.ini error"
+
+    
+    
     #print info1.st_mtime
     #print info2.st_mtime
     #fileConfig1 = max(glob.iglob('/home/pi/config.ini'), key=os.path.getctime)

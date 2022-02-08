@@ -243,9 +243,11 @@ def UpdateConfigs():
     global id
     global version_config
     print IMEI_CONFIG
-    print 'http://159.89.208.90:5001/config/' + IMEI_CONFIG[0] + '?ambulance_id=' + id + '&version=' + version_config
+    print 'http://159.89.208.90:5001/config/' + IMEI_CONFIG[0] 
+    #+ '?ambulance_id=' + id + '&version=' + version_config
     try:
-        resp = requests.get('http://159.89.208.90:5001/config/' + IMEI_CONFIG[0] + '?ambulance_id=' + id + '&version=' + version_config)
+        resp = requests.get('http://159.89.208.90:5001/config/' + IMEI_CONFIG[0])
+        #+ '?ambulance_id=' + id + '&version=' + version_config)
         #resp = requests.get('http://188.166.197.107/Config_API.php?IMEI=861075028784957')
         configJSON = resp.json()
         print configJSON
@@ -263,7 +265,7 @@ def UpdateConfigs():
     f.write("\nnti_api: "+ configJSON['nti_api'])
     f.write("\ngps_uc20: "+ configJSON['gps_uc20'])
     f.write("\nsound: "+ configJSON['sound'])
-    f.write("\nversion: "+ configJSON['version'])
+    f.write("\nversion: "+ str(configJSON['version']))
     f.write("\nover_speed: "+ str(configJSON['over_speed']))
     f.write("\nkey0: "+ configJSON['key0'])
     f.write("\nkey1: "+ configJSON['key1'])
@@ -328,12 +330,18 @@ else:
   #  os.system('sudo mkdir /home/pi/usb/vdo')
  #   os.system('sudo mkdir /home/pi/usb/vdo/ch0')
   #  os.system('sudo mkdir /home/pi/usb/vdo/ch1')
-    
-       
-Config = ConfigParser.ConfigParser()
-Config.read('/home/pi/config.ini')
 
-try:
+print "Wait Internet.."  
+while (internet_on() == False):
+    time.sleep(20)
+print "Internet..OK!!!"  
+
+SendStatusFun('Power Start')
+UpdateConfigs()
+
+try:      
+    Config = ConfigParser.ConfigParser()
+    Config.read('/home/pi/config.ini')
     id =  ConfigSectionMap('Profile')['id']
     print id
 except:
