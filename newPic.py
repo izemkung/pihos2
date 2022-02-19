@@ -25,9 +25,9 @@ def ConfigSectionMap(section):
             dict1[option] = None
     return dict1
 
-if os.path.exists("/home/pi/usb/config.ini") == False:
-    print("config.ini error")
-    os.system('sudo mount /dev/sda1 /home/pi/usb/')
+#if os.path.exists("/home/pi/usb/config.ini") == False:
+#    print("config.ini error")
+#    os.system('sudo mount /dev/sda1 /home/pi/usb/')
     #exit()
 
 
@@ -43,14 +43,14 @@ try:
 except:
     print('Error mount')
 
-if os.path.exists("/home/pi/usb/config.ini") == False:
-    print("usb config.ini error")
-    os.system('sudo mount /dev/sda1 /home/pi/usb/')
+#if os.path.exists("/home/pi/usb/config.ini") == False:
+#    print("usb config.ini error")
+#    os.system('sudo mount /dev/sda1 /home/pi/usb/')
     #exit()
-else:
-    if os.path.exists("/home/pi/config.ini") == True:
-        os.system('sudo rm -rf config.ini')
-    os.system('sudo cp /home/pi/usb/config.ini /home/pi/config.ini')
+#else:
+#    if os.path.exists("/home/pi/config.ini") == True:
+#        os.system('sudo rm -rf config.ini')
+#    os.system('sudo cp /home/pi/usb/config.ini /home/pi/config.ini')
 
 time.sleep(2)
 Config = ConfigParser.ConfigParser()

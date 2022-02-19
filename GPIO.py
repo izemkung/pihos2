@@ -345,7 +345,8 @@ try:
     id =  ConfigSectionMap('Profile')['id']
     print id
 except:
-    Config.read('/home/pi/usb/config.ini')  
+    print "Read config ERROR"  
+    #Config.read('/home/pi/usb/config.ini')  
 
 id =  ConfigSectionMap('Profile')['id']
 print id 
