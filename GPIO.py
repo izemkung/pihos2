@@ -140,6 +140,7 @@ try:
         bufemi = bufemi.replace(r, ' ')
     IMEI = bufemi.split(" ")
     print IMEI[0]
+    IMEI_CONFIG = IMEI
     time.sleep(1)
     ser.write('AT+QGPS=1\r')
     ser.write('ATE0\r')
@@ -336,12 +337,11 @@ while (internet_on() == False):
     time.sleep(20)
 print "Internet..OK!!!"  
 
-SendStatusFun('Power Start')
 UpdateConfigs()
 
 try:      
     Config = ConfigParser.ConfigParser()
-    Config.read('/home/pi/config.ini')
+    Config.read('/home/pi/_config.ini')
     id =  ConfigSectionMap('Profile')['id']
     print id
 except:
