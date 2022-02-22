@@ -27,9 +27,14 @@ def ConfigSectionMap(section):
 
     
 Config = ConfigParser.ConfigParser()
-Config.read('/home/pi/config.ini')
 
-id =  ConfigSectionMap('Profile')['id']
+try:
+    Config.read('/home/pi/config.ini')
+    id =  ConfigSectionMap('Profile')['id']
+except:
+    Config.read('/home/pi/_config.ini')
+    id =  ConfigSectionMap('Profile')['id']
+
 
 timevdo = ConfigSectionMap('Profile')['timevdo']
 timepic = ConfigSectionMap('Profile')['timepic']
@@ -46,7 +51,6 @@ except:
   print("exception version")
 print  'version > ',version
 
-config = 1
 try:
   config =  ConfigSectionMap('Profile')['config']
 except:

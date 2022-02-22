@@ -54,14 +54,15 @@ except:
 
 time.sleep(2)
 Config = ConfigParser.ConfigParser()
-Config.read('/home/pi/config.ini')
 
 try:
+    Config.read('/home/pi/config.ini')
     id =  ConfigSectionMap('Profile')['id']
 except:
     Config.read('/home/pi/_config.ini')
+    id =  ConfigSectionMap('Profile')['id']
 
-id =  ConfigSectionMap('Profile')['id']
+
 timevdo = ConfigSectionMap('Profile')['timevdo']
 timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
