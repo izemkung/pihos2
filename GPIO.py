@@ -8,12 +8,33 @@ import socket
 import serial
 import fcntl
 import struct
+import subprocess
 
 REMOTE_SERVER = "www.google.com"
 flagDetectHW_GPS = False
 VERSION_FW = 34
 version_config = "34"
 IMEI_CONFIG = ""
+CAM_COUNT = ""
+
+def checkCamera():
+    global CAM_COUNT
+    out = ''
+    try:
+        byteOutput = subprocess.check_output(['lsusb'])
+        out = byteOutput.decode('UTF-8').rstrip()
+        print(out)
+        CAM_COUNT = "_C"
+        CAM_COUNT += str(out.count('Webcam'))
+        CAM_COUNT += ":"
+        CAM_COUNT += str(out.count('Logitech'))
+        print(CAM_COUNT)
+
+    except subprocess.CalledProcessError as e:
+        print("Error lsusb", e.output)
+        return "error"
+    
+
 
 def internet_on():
     try:
@@ -45,6 +66,7 @@ def SendAlartFun(channel):
 
 def SendStatusFun(message):
     global IMEI_CONFIG
+    global CAM_COUNT
     try:
         ser.flushInput()
         ser.flushOutput()
@@ -96,7 +118,7 @@ def SendStatusFun(message):
         else:
             api[2] += '_UC_SW2_'
         api[2] += version_config
-        
+        api[2] += CAM_COUNT
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
         print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message))
         print ('content     ' + resp.content) 
@@ -337,6 +359,7 @@ while (internet_on() == False):
     time.sleep(20)
 print "Internet..OK!!!"  
 
+checkCamera()
 UpdateConfigs()
 
 try:      

@@ -39,6 +39,7 @@ except:
 timevdo = ConfigSectionMap('Profile')['timevdo']
 timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
+url = "http://27.254.149.188:5000/api/tracking/postAmbulanceTracking"
 pic_url = ConfigSectionMap('Profile')['pic_api']
 version = 30
 
@@ -76,7 +77,12 @@ class GpsPoller(threading.Thread):
     while gpsp.running:
       gpsd.next() #this will continue to loop and grab EACH set of gpsd info to clear the buffer
 
-print  'URL > ',gps_url,' ID > ',id
+
+if (config == "2"):
+  print  'URL > ',url,' ID > ',id
+else:
+  print  'URL > ',gps_url,' ID > ',id
+
 gpsp = GpsPoller() # create the thread
 
 
@@ -110,7 +116,7 @@ while True:
     GPIO.output(22,True)
     try:
 
-      url = "http://27.254.149.188:5000/api/tracking/postAmbulanceTracking"
+     
 
       payload={'ambulance_id': id,
       'ambulance_box_code': id,
