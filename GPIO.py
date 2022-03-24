@@ -83,6 +83,14 @@ def SendStatusFun(message):
         for r in replacements:
             bufsid = bufsid.replace(r, ' ')
         SID = bufsid.split(" ")
+
+
+        if len(SID[1]) <= 13:
+            SID[1] = "On_LAN"
+
+        sidOk = True
+            #return False
+
         #print SID
         #SID = CID[1]
         
@@ -100,25 +108,28 @@ def SendStatusFun(message):
         IMEI_CONFIG = IMEI
         #print IMEI
         #IMEI = emi[0]
-        sidOk = True
+       
         
         #print id
         ip = get_ip_address('ppp0') 
+        if len(ip) <= 5:
+            ip = "On_LAN"
         #print ip
         #print SID
         #print IMEI
         api = nti_url.split("/")
         #print api[2]
 
-        if len(SID[1]) <= 13:
-            return False
+        
 
         if flagDetectHW_GPS == True:
             api[2] += '_HW_SW2_'
         else:
             api[2] += '_UC_SW2_'
+
         api[2] += version_config
         api[2] += CAM_COUNT
+
         resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
         print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message))
         print ('content     ' + resp.content) 
@@ -127,7 +138,23 @@ def SendStatusFun(message):
         print 'SendStatusFun Connection lost'
     return False
 
+def SetDeviceGPSisHW(section):
+    try:
+        if section == True:
+            print "gpsd > GPS HW"
+            os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortHW))
+        else:
+            print "gpsd > GPS UC20"
+            os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
+        
+        time.sleep(1)
+        os.system('sudo systemctl enable gpsd.socket')
+        os.system('sudo systemctl start gpsd.socket')
 
+        os.system('sudo systemctl enable gpsd.socket')
+        os.system('sudo systemctl start gpsd.socket')
+    except :
+        print "Init gpsd Error"
         
 def ConfigSectionMap(section):
     dict1 = {}
@@ -145,9 +172,11 @@ def ConfigSectionMap(section):
 
 print "Start GPIO"
 
-#=========================Ennable UC20 GPS
+
+#=========================GET IMEI UC20 
 time.sleep(5)
 try:
+    
     ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
     ser.flushInput()
     ser.flushOutput()
@@ -169,15 +198,15 @@ try:
     
 
 except:
-    print "Serial Error"
-    time.sleep(20)
-    os.system('sudo reboot')
+    print "Get IMEI from Serial ttyUSB2 Error"
+    time.sleep(10)
+    exit()
+    #os.system('sudo reboot')
 time.sleep(1)
 
 #=========================Detect HW GPS
 GPSPortUC20 = '/dev/ttyUSB1'
 GPSPortHW =  '/dev/ttyAMA0'
-
 
 try:
   os.system('sudo chmod +x /home/pi/pihos/connect.sh')
@@ -198,7 +227,7 @@ try:
     serDetec.flushInput()
     serDetec.flushOutput()
     time.sleep(1)
-    for num in range(0, 20):
+    for num in range(0, 40):
         #time.sleep(0.5)
         bufemi = serDetec.readline()
         print bufemi
@@ -212,24 +241,8 @@ except:
     #time.sleep(10)
     #os.system('sudo reboot')
 
-try:
-  if flagDetectHW_GPS == True:
-    print "gpsd > GPS HW"
-    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortHW))
-  else:
-    print "gpsd > GPS UC20"
-    os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
-  
-  time.sleep(1)
-  os.system('sudo systemctl enable gpsd.socket')
-  os.system('sudo systemctl start gpsd.socket')
 
-  os.system('sudo systemctl enable gpsd.socket')
-  os.system('sudo systemctl start gpsd.socket')
-except :
-  print "Init gpsd Error"
-
-
+SetDeviceGPSisHW(flagDetectHW_GPS)
 
 #sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock
 #input2 = 0
@@ -276,6 +289,7 @@ def UpdateConfigs():
         print configJSON
     except :
         print "Get config error"
+        return
 
     f = open('/home/pi/_config.ini', "w")
     f.write("[Profile]")

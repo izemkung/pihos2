@@ -290,13 +290,9 @@ while (True):
                 } 
                 jpg_as_text0 = jpg_as_text0.tostring()
                 jpg_as_text1 = jpg_as_text1.tostring()
-                jpg_as_text2 = ''
-                jpg_as_text3 = ''
                 files=[
                 ('images_name_1',('im1.png',jpg_as_text0,'image/png')),
-                ('images_name_2',('im2.png',jpg_as_text1,'image/png')),
-                ('images_name_3',('im3.png',jpg_as_text2,'image/png')),
-                ('images_name_4',('im4.png',jpg_as_text3,'image/png'))
+                ('images_name_2',('im2.png',jpg_as_text1,'image/png'))
                 ]
                 headers = {}
              
