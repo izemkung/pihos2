@@ -3,3 +3,4 @@
 33 add Sound Alart modifile HW
 34 Edit for Json api
 35 Fix APN 
+3.1.9 Auto GPS detect
