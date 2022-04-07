@@ -16,6 +16,7 @@ VERSION_FW = 34
 version_config = "34"
 IMEI_CONFIG = ""
 CAM_COUNT = ""
+serModem = ""
 
 def checkCamera():
     global CAM_COUNT
@@ -67,15 +68,16 @@ def SendAlartFun(channel):
 def SendStatusFun(message):
     global IMEI_CONFIG
     global CAM_COUNT
+    global serModem
     try:
-        ser.flushInput()
-        ser.flushOutput()
+        serModem.flushInput()
+        serModem.flushOutput()
         time.sleep(0.1)
-        ser.write('AT+QCCID\r')
+        serModem.write('AT+QCCID\r')
         time.sleep(2)
 
         for num in range(0, 10):
-            bufsid = ser.readline()
+            bufsid = serModem.readline()
             if len(bufsid) >= 20 :
                 break
 
@@ -94,10 +96,10 @@ def SendStatusFun(message):
         #print SID
         #SID = CID[1]
         
-        ser.write('AT+GSN\r')
+        serModem.write('AT+GSN\r')
         time.sleep(1)
         for num in range(0, 10):
-            bufemi = ser.readline()
+            bufemi = serModem.readline()
             if len(bufemi) >= 10 :
                 break
 
@@ -117,23 +119,23 @@ def SendStatusFun(message):
         #print ip
         #print SID
         #print IMEI
-        api = nti_url.split("/")
+        api = "27.254.149.188"
         #print api[2]
 
         
 
         if flagDetectHW_GPS == True:
-            api[2] += '_HW_Sv3:1:9_'
+            api += '_HW_Sv3:1:9_'
         else:
-            api[2] += '_UC_Sv3:1:9_'
+            api += '_UC_Sv3:1:9_'
 
-        api[2] += version_config
+        api += version_config
 
         checkCamera()
-        api[2] += CAM_COUNT
-
-        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message), timeout=3.001)
-        print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api[2],message))
+        api += CAM_COUNT
+        print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message))
+        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message), timeout=3.001)
+        
         print ('content     ' + resp.content) 
         return True
     except:
@@ -191,6 +193,7 @@ def FindSerialModem():
                 if _bufin.count('OK'):
                     print('Found!! OK!!')
                     ser.close()
+                    time.sleep(1)
                     return _port
             ser.close()
             time.sleep(1)
@@ -211,6 +214,7 @@ def FindGPS_SerialModem():
                 if _bufin.count('$'):
                     print('Found!! GPS!!')
                     ser.close()
+                    time.sleep(1)
                     return _port
             ser.close()
             time.sleep(1)
@@ -229,12 +233,12 @@ try:
     if(port == 'Error'):
         port = '/dev/ttyUSB2'
 
-    ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
+    serModem = serial.Serial(port, 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
     
-    ser.write('AT+GSN\r')
+    serModem.write('AT+GSN\r')
     for num in range(0, 10):
-        ser.write('AT+GSN\r')
-        bufemi = ser.readline()
+        serModem.write('AT+GSN\r')
+        bufemi = serModem.readline()
         if len(bufemi) >= 15 :
             break
     replacements = (',', '\r', '\n', '?')
@@ -244,8 +248,8 @@ try:
     print IMEI[0]
     IMEI_CONFIG = IMEI
     time.sleep(1)
-    ser.write('AT+QGPS=1\r')
-    ser.write('ATE0\r')
+    serModem.write('AT+QGPS=1\r')
+    serModem.write('ATE0\r')
     
 
 except:
@@ -491,13 +495,12 @@ while True:
 
 #Ennable GPS
     if time.time() > timeout:
-        
         timeout = time.time() + 60
-        ser.write('ATE0\r')
-        ser.write('AT+QGPS=1\r')
+        serModem.write('ATE0\r')
+        serModem.write('AT+QGPS=1\r')
         for num in range(0, 5):
-            bufemi = ser.readline()
+            bufemi = serModem.readline()
         print "Set Starting GPS"  
 
-ser.close()
+serModem.close()
 GPIO.cleanup()
