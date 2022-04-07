@@ -291,7 +291,7 @@ try:
         print bufemi
         if bufemi[0] == '$' and bufemi[1] == 'G':
             flagDetectHW_GPS = True
-            print "HW GPS Detect"
+            print "===========HW GPS Detect==========="
             break
     serDetec.close()
 except:

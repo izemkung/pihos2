@@ -281,28 +281,30 @@ while (True):
 
             #url = "http://202.183.192.154:5000/api/tracking/postAmbulanceImageUpload"
             countPic_R += 1
-            if (config == "2" and countPic_R % 20 != 0):
-                url = "http://27.254.149.188:5000/api/snapshot/postAmbulanceImageUpload"
-                payload={ 
-                'ambulance_id':  str(id),
-                'ambulance_box_code': str(id),
-                'images_count': '2'
-                } 
-                jpg_as_text0 = jpg_as_text0.tostring()
-                jpg_as_text1 = jpg_as_text1.tostring()
-                files=[
-                ('images_name_1',('im1.png',jpg_as_text0,'image/png')),
-                ('images_name_2',('im2.png',jpg_as_text1,'image/png'))
-                ]
-                headers = {}
+            #if (config == "2" and countPic_R % 20 != 0):
+            url = "http://27.254.149.188:5000/api/snapshot/postAmbulanceImageUpload"
+            payload={ 
+            'ambulance_id':  str(id),
+            'ambulance_box_code': str(id),
+            'images_count': '2'
+            } 
+            jpg_as_text0 = jpg_as_text0.tostring()
+            jpg_as_text1 = jpg_as_text1.tostring()
+            files=[
+            ('images_name_1',('im1.png',jpg_as_text0,'image/png')),
+            ('images_name_2',('im2.png',jpg_as_text1,'image/png'))
+            ]
+            headers = {}
              
-            else:
-                url = pic_url
-                headers = {}
-                files = {}
-                jpg_as_text0 = base64.b64encode(jpg_as_text0)
-                jpg_as_text1 = base64.b64encode(jpg_as_text1)
-                payload = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
+            #else:
+            #    url = pic_url
+            #    headers = {}
+            #   files = {}
+            #    jpg_as_text0 = base64.b64encode(jpg_as_text0)
+            #    jpg_as_text1 = base64.b64encode(jpg_as_text1)
+            #    payload = {'ambulance_id':id,'images_name_1':jpg_as_text0,'images_name_2':jpg_as_text1}
+
+
             #dbSrver
             #url = "http://202.183.192.149:3000/fileupload"
             #payload={ 'ID': id,
@@ -320,7 +322,7 @@ while (True):
             try:
                 GPIO.output(17,False)
                 r = 'error'
-                with Timeout(5):
+                with Timeout(3):
                     r = requests.request("POST", url, headers=headers, data=payload, files=files)
                     #print('No timeout?')
                     print(r.text)
