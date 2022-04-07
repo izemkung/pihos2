@@ -145,7 +145,10 @@ def SetDeviceGPSisHW(section):
             os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortHW))
         else:
             print "gpsd > GPS UC20"
-            os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortUC20))
+            port = FindGPS_SerialModem()
+            if(port == 'error'):
+                port = GPSPortUC20
+            os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(port))
         
         time.sleep(1)
         os.system('sudo systemctl enable gpsd.socket')
@@ -169,6 +172,50 @@ def ConfigSectionMap(section):
             dict1[option] = None
     return dict1
 
+def FindSerialModem():
+    _port = 'Error'
+    for num in range(0, 4):
+        _port = '/dev/ttyUSB{0}'.format(num)
+        try:
+            ser = serial.Serial(_port,115200, timeout=1.0 , rtscts=True, dsrdtr=True)
+            ser.flushInput()
+            ser.flushOutput()
+            time.sleep(1)
+            ser.write('AT\r')
+            ser.write('AT\r')
+            for num in range(0, 4):
+                _bufin = ser.readline()
+                print('Checking {0} Data In {1}'.format(_port,_bufin))
+                if _bufin.count('OK'):
+                    print('Found!! OK!!')
+                    ser.close()
+                    return _port
+            ser.close()
+            time.sleep(1)
+        except:
+            print('Port {0} busy'.format(_port))
+
+    return _port
+
+def FindGPS_SerialModem():
+    _port = 'Error'
+    for num in range(0, 4):
+        _port = '/dev/ttyUSB{0}'.format(num)
+        try:
+            ser = serial.Serial(_port,115200, timeout=1.0 , rtscts=True, dsrdtr=True)
+            for num in range(0, 4):
+                _bufin = ser.readline()
+                print('Checking {0} Data In {1}'.format(_port,_bufin))
+                if _bufin.count('$'):
+                    print('Found!! GPS!!')
+                    ser.close()
+                    return _port
+            ser.close()
+            time.sleep(1)
+        except:
+            print('Port {0} busy'.format(_port))
+
+    return _port
 
 print "Start GPIO"
 
@@ -176,15 +223,17 @@ print "Start GPIO"
 #=========================GET IMEI UC20 
 time.sleep(5)
 try:
-    
-    ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
-    ser.flushInput()
-    ser.flushOutput()
-    ser.write('AT+GSN\r')
+    port = FindSerialModem()
+    if(port == 'Error'):
+        port = '/dev/ttyUSB2'
 
+    ser = serial.Serial('/dev/ttyUSB2', 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
+    
+    ser.write('AT+GSN\r')
     for num in range(0, 10):
+        ser.write('AT+GSN\r')
         bufemi = ser.readline()
-        if len(bufemi) >= 10 :
+        if len(bufemi) >= 15 :
             break
     replacements = (',', '\r', '\n', '?')
     for r in replacements:
@@ -220,7 +269,7 @@ try:
 except :
   print "Stop gpsd Error"
 
-time.sleep(2)
+time.sleep(5)
 #==============================HW Serial GPS Detection==============================
 try:
     serDetec = serial.Serial(GPSPortHW, 9600 , timeout=1.0 , rtscts=True, dsrdtr=True)
