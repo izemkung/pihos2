@@ -24,12 +24,12 @@ def checkCamera():
     try:
         byteOutput = subprocess.check_output(['lsusb'])
         out = byteOutput.decode('UTF-8').rstrip()
-        print(out)
+        #print(out)
         CAM_COUNT = "_C"
         CAM_COUNT += str(out.count('Webcam'))
         CAM_COUNT += ":"
         CAM_COUNT += str(out.count('Logitech'))
-        print(CAM_COUNT)
+        #print(CAM_COUNT)
 
     except subprocess.CalledProcessError as e:
         print("Error lsusb", e.output)
@@ -69,77 +69,80 @@ def SendStatusFun(message):
     global IMEI_CONFIG
     global CAM_COUNT
     global serModem
-    try:
-        serModem.flushInput()
-        serModem.flushOutput()
-        time.sleep(0.1)
-        serModem.write('AT+QCCID\r')
-        time.sleep(2)
+    #try:
+    serModem.flushInput()
+    serModem.flushOutput()
+    time.sleep(0.1)
+    serModem.write('AT+QCCID\r')
+    time.sleep(2)
 
-        for num in range(0, 10):
-            bufsid = serModem.readline()
-            if len(bufsid) >= 20 :
-                break
+    for num in range(0, 10):
+        bufsid = serModem.readline()
+        if len(bufsid) >= 20 :
+            break
 
-        replacements = (',', '\r', '\n', '?')
-        for r in replacements:
-            bufsid = bufsid.replace(r, ' ')
-        SID = bufsid.split(" ")
+    replacements = (',', '\r', '\n', '?')
+    for r in replacements:
+        bufsid = bufsid.replace(r, ' ')
+    SID = bufsid.split(" ")
 
-
+    if(len(SID) > 1):
         if len(SID[1]) <= 13:
             SID[1] = "On_LAN"
+    else:
+        SID = ["","On_LAN"]
 
-        sidOk = True
-            #return False
+    sidOk = True
+        #return False
 
-        #print SID
-        #SID = CID[1]
-        
-        serModem.write('AT+GSN\r')
-        time.sleep(1)
-        for num in range(0, 10):
-            bufemi = serModem.readline()
-            if len(bufemi) >= 10 :
-                break
+    #print SID
+    #SID = CID[1]
+    
+    serModem.write('AT+GSN\r')
+    time.sleep(1)
+    for num in range(0, 10):
+        bufemi = serModem.readline()
+        if len(bufemi) >= 10 :
+            break
 
-        replacements = (',', '\r', '\n', '?')
-        for r in replacements:
-            bufemi = bufemi.replace(r, ' ')
-        IMEI = bufemi.split(" ")
-        IMEI_CONFIG = IMEI
-        #print IMEI
-        #IMEI = emi[0]
-       
-        
-        #print id
+    replacements = (',', '\r', '\n', '?')
+    for r in replacements:
+        bufemi = bufemi.replace(r, ' ')
+    IMEI = bufemi.split(" ")
+    IMEI_CONFIG = IMEI
+    #print IMEI
+    #IMEI = emi[0]
+    
+    
+    #print id
+    try:
         ip = get_ip_address('ppp0') 
-        if len(ip) <= 5:
-            ip = "On_LAN"
-        #print ip
-        #print SID
-        #print IMEI
-        api = "27.254.149.188"
-        #print api[2]
-
-        
-
-        if flagDetectHW_GPS == True:
-            api += '_HW_Sv3.1.9_'
-        else:
-            api += '_UC_Sv3.1.9_'
-
-        api += version_config
-
-        checkCamera()
-        api += CAM_COUNT
-        print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message))
-        resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message), timeout=3.001)
-        
-        print ('content     ' + resp.content) 
-        return True
     except:
-        print 'SendStatusFun Connection lost'
+        ip = "On_LAN"
+    #print ip
+    #print SID
+    #print IMEI
+    api = "27.254.149.188"
+    #print api[2]
+
+    
+
+    if flagDetectHW_GPS == True:
+        api += '_HW_Sv3.1.9_'
+    else:
+        api += '_UC_Sv3.1.9_'
+
+    api += version_config
+
+    checkCamera()
+    api += CAM_COUNT
+    print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message))
+    resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message), timeout=3.001)
+    
+    print ('content     ' + resp.content) 
+    return True
+    #except:
+        #print 'SendStatusFun Connection lost'
     return False
 
 def SetDeviceGPSisHW(section):
@@ -191,7 +194,7 @@ def FindSerialModem():
                 _bufin = ser.readline()
                 print('Checking {0} Data In {1}'.format(_port,_bufin))
                 if _bufin.count('OK'):
-                    print('Found!! OK!!')
+                    print('Found!! {0} OK!!'.format(_port))
                     ser.close()
                     time.sleep(1)
                     return _port
@@ -212,7 +215,7 @@ def FindGPS_SerialModem():
                 _bufin = ser.readline()
                 print('Checking {0} Data In {1}'.format(_port,_bufin))
                 if _bufin.count('$'):
-                    print('Found!! GPS!!')
+                    print('Found!! {0} GPS!!'.format(_port))
                     ser.close()
                     time.sleep(1)
                     return _port
@@ -233,10 +236,10 @@ try:
     if(port == 'Error'):
         port = '/dev/ttyUSB2'
 
-    serModem = serial.Serial(port, 115200, timeout=3.0 , rtscts=True, dsrdtr=True)
+    serModem = serial.Serial(port, 115200, timeout=1.0 , rtscts=True, dsrdtr=True)
     
     serModem.write('AT+GSN\r')
-    for num in range(0, 10):
+    for num in range(0, 5):
         serModem.write('AT+GSN\r')
         bufemi = serModem.readline()
         if len(bufemi) >= 15 :
@@ -282,7 +285,7 @@ try:
     serDetec.flushInput()
     serDetec.flushOutput()
     time.sleep(1)
-    for num in range(0, 40):
+    for num in range(0, 10):
         #time.sleep(0.5)
         bufemi = serDetec.readline()
         print bufemi
