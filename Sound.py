@@ -12,6 +12,11 @@ import RPi.GPIO as GPIO ## Import GPIO library
 import serial
 import time
 import ConfigParser
+
+while True:
+  time.sleep(5)
+
+
 def ConfigSectionMap(section):
     dict1 = {}
     options = Config.options(section)
