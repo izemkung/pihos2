@@ -285,7 +285,7 @@ try:
     serDetec.flushInput()
     serDetec.flushOutput()
     time.sleep(1)
-    for num in range(0, 10):
+    for num in range(0, 20):
         #time.sleep(0.5)
         bufemi = serDetec.readline()
         print bufemi
