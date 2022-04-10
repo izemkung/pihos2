@@ -11,6 +11,63 @@ import time
 import sys
 import subprocess
 
+def updateAPN():
+    print ('updateAPN ')
+    config_path = '/home/pi/apn_configure.cfg'
+    file_exists = os.path.exists(config_path)
+    apn_string_list = ''
+    apn=''
+    anpUser=''
+    apnPass=''
+    if(file_exists):
+        print("Config found!!")
+        usb_apn_file = open(config_path)
+        apn_string_list = usb_apn_file.readlines()
+        usb_apn_file.close()
+        for idx in range(0, len(apn_string_list)):
+            line = apn_string_list[idx]
+            if 'apn=' in line:
+                first_idx = line.find('=') + 1
+                apn = line[first_idx:].strip('\n')
+                print('APN : '+ apn)
+            if 'anpUser=' in line:
+                first_idx = line.find('=') + 1
+                anpUser = line[first_idx:].strip('\n')
+                print('anpUser : '+ anpUser)
+            if 'apnPass=' in line:
+                first_idx = line.find('=') + 1
+                apnPass = line[first_idx:].strip('\n')
+                print('apnPass : '+ apnPass)
+    else:
+        print("Config not found!!")
+        return
+
+    my_file_path =  "/home/pi/pihos/connect.sh"
+    my_file = open(my_file_path)
+    string_list = my_file.readlines()
+    my_file.close()
+    for idx in range(0, len(string_list)):
+        line = string_list[idx]
+        if 'umtskeeper' in line:
+            first_idx = line.find('CUSTOM_APN=') + 12
+            currentID = line[first_idx: line.find('APN_USER=')-2]
+            print('current APN : '+ currentID)
+            if( currentID != apn ):
+                print("Update APN "+currentID+" > "+ apn)
+                string_list[idx] = 'sudo /home/pi/3g/umtskeeper --sakisoperators "USBINTERFACE=\'3\' OTHER=\'USBMODEM\' USBMODEM=\'05c6:9003\' APN="CUSTOM_APN" CUSTOM_APN="'+ apn +'" APN_USER=\'tely360\' APN_PASS=\'tely360\'" --sakisswitches "--sudo --console" --devicename \'U20\' --log --nat \'no\' --httpserver'+'\n'
+            #sudo ./quectel-CM -s tely360
+            #    print(string_list[idx])
+                my_file = open(my_file_path, "w")
+                new_file_contents = "".join(string_list)
+                my_file.write(new_file_contents)
+                my_file.close()
+                print("Update APN Reboot")
+                os.system('sudo reboot')
+                #reconnect camera
+            else:
+                print("Current APN = new APN : " + apn)
+
+
 #===================================================Update FW Version================================
 vercurrent = subprocess.check_output('git rev-parse --verify HEAD', shell=True)
 print 'Cur ver ' + vercurrent
@@ -36,12 +93,25 @@ if vergit != vercurrent and len(vercurrent) == len(vergit):
     #break
 #continue
 
-if os.path.exists("/home/pi/usb/vdo/ch0") == False:
-    os.system('sudo mount /dev/sda1 /home/pi/usb')
-    print 'Mount!!!'
-    exit()
 
+
+#if os.path.exists("/home/pi/usb/vdo/ch0") == False:
+os.system('sudo mount /dev/sda1 /home/pi/usb')
+time.sleep(1)
+
+#================================APN UPDATE==================================
+if os.path.exists("/home/pi/apn_configure.cfg") == False:
+    os.system('sudo cp /home/pi/pihos/apn_configure.cfg /home/pi/apn_configure.cfg')
+    print 'Move Defult apn_configs'
     
+if os.path.exists("/home/pi/usb/apn_configure.cfg") == True:
+    os.system('sudo rm -rf /home/pi/apn_configure.cfg')
+    os.system('sudo cp /home/pi/usb/apn_configure.cfg /home/pi/apn_configure.cfg')
+    print 'Found APN apn_configs on USB!!!'
+updateAPN()
+
+
+
 statvfs = os.statvfs('/home/pi/usb')
 size = (statvfs.f_frsize * statvfs.f_blocks) / 1073741824.00
 avail = (statvfs.f_frsize * statvfs.f_bavail) / 1073741824.00 
