@@ -158,11 +158,11 @@ def SetDeviceGPSisHW(section):
             os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(port))
         
         time.sleep(1)
-        os.system('sudo systemctl restart gpsd.socket')
-        #os.system('sudo systemctl start gpsd.socket')
+        os.system('sudo systemctl enable gpsd.socket')
+        os.system('sudo systemctl start gpsd.socket')
 
-        #os.system('sudo systemctl enable gpsd.socket')
-        #os.system('sudo systemctl start gpsd.socket')
+        os.system('sudo systemctl enable gpsd.socket')
+        os.system('sudo systemctl start gpsd.socket')
     except :
         print "Init gpsd Error"
         
@@ -270,14 +270,12 @@ try:
   os.system('sudo chmod +x /home/pi/pihos/connect.sh')
   os.system('sudo timedatectl set-ntp True')
   
-  os.system('sudo systemctl enable gpsd.socket')
-  os.system('sudo systemctl start gpsd.socket')
-  
-  #os.system('sudo systemctl stop gpsd.socket')
-  #os.system('sudo systemctl disable gpsd.socket')
-
-  #os.system('sudo systemctl stop gpsd.socket')
-  #os.system('sudo systemctl disable gpsd.socket')
+  os.system('sudo systemctl stop gpsd.socket')
+  os.system('sudo systemctl disable gpsd.socket')
+  #os.system('sudo systemctl enable gpsd.socket')
+  #os.system('sudo systemctl start gpsd.socket')
+  os.system('sudo systemctl stop gpsd.socket')
+  os.system('sudo systemctl disable gpsd.socket')
 except :
   print "Stop gpsd Error"
 

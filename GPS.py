@@ -62,7 +62,7 @@ print 'config > ' , config
 gpsd = None 
 timeout = None
 timeReset = None
-
+gpsdThreadOut = False 
 
 class GpsPoller(threading.Thread):
   def __init__(self):
@@ -74,8 +74,11 @@ class GpsPoller(threading.Thread):
  
   def run(self):
     global gpsd
+    global gpsdThreadOut
     while gpsp.running:
       gpsd.next() #this will continue to loop and grab EACH set of gpsd info to clear the buffer
+      if(gpsdThreadOut):
+        break
 
 
 if (config == "2"):
@@ -131,10 +134,10 @@ while True:
 
       countSend_R += 1
 
-      if (config == "2" and countSend_R % 10 != 0):
-        resp = requests.request("POST", url, headers=headers, data=payload, files=files)
-      else:
-        resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
+      #if (config == "2" and countSend_R % 10 != 0):
+      resp = requests.request("POST", url, headers=headers, data=payload, files=files)
+      #else:
+        #resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
   
         
       #
@@ -164,6 +167,7 @@ while True:
   time.sleep(0.95) #set to whatever
 
   if time.time() > timeout:
+    gpsdThreadOut = True
     print "Timeout"
     for count in range(0, 2):
       time.sleep(0.5)
@@ -173,6 +177,7 @@ while True:
     break
 
   if time.time() > timeReset:
+    gpsdThreadOut = True
     print "TimeReset"
     for count in range(0, 2):
       time.sleep(0.5)
@@ -182,6 +187,7 @@ while True:
     break
     
   if countError > 20:
+    gpsdThreadOut = True
     print "countError"
     for count in range(0, 10):
       time.sleep(0.2)
@@ -221,7 +227,7 @@ while True:
 
 
 gpsp.running = False
-gpsp.join() # wait for the thread to finish what it's doing
+#gpsp.join() # wait for the thread to finish what it's doing
 if version == '25':
   GPIO.output(27,False)
 GPIO.output(22,False)
