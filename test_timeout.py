@@ -1,4 +1,5 @@
 import signal
+
 class Timeout():
     """ Timeout for use with the `with` statement. """
 
@@ -28,6 +29,22 @@ class Timeout():
 
 # Demonstration:
 from time import sleep
+import requests
+
+url = "http://27.254.149.188:5000/api/crash/postAmbulanceCrashNotify"
+payload={'ambulance_id': 99,
+'tracking_latitude': 1.0,
+'tracking_longitude': 1.0,
+'tracking_heading': 1.0,
+'tracking_speed': 1.0}
+files=[]
+headers = {}
+
+resp = requests.request("POST", url, headers=headers, data=payload, files=files , timeout=(3.0,3.0))
+
+print ('content     ' + resp.content) 
+
+print 'SendAlartFun Connection lost'
 
 print('This is going to take maximum 10 seconds...')
 
@@ -38,3 +55,6 @@ try:
 except:
     print('timeout')
 print('Done')
+
+
+    

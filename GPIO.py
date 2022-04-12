@@ -24,6 +24,8 @@ GPSPortUC20 = '/dev/ttyUSB1'
 GPSPortHW =  '/dev/ttyAMA0'
 gpsdProcess = ""
 
+id = ""
+
 def checkCamera():
     global CAM_COUNT
     out = ''
@@ -66,6 +68,7 @@ def get_ip_address(ifname):
 
 def SendAlartFun(channel):
     global gpsd
+    global id
     try:
         url = "http://27.254.149.188:5000/api/crash/postAmbulanceCrashNotify"
         payload={'ambulance_id': id,
@@ -77,7 +80,7 @@ def SendAlartFun(channel):
         headers = {}
 
         #if (config == "2" and countSend_R % 10 != 0):
-        resp = requests.request("POST", url, headers=headers, data=payload, files=files , timeout=(2,2))
+        resp = requests.request("POST", url, headers=headers, data=payload, files=files , timeout=(3.0,3.0))
         
         print ('content     ' + resp.content) 
     except:
@@ -606,7 +609,7 @@ sendStart = False
 current_time = time.time()
 timeout2 = time.time()
 timeStart = time.time()
-timeout = time.time() + 120
+timeout = time.time() + 100
 while True:
     time.sleep(2)
     current_time = time.time()
