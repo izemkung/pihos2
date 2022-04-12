@@ -127,20 +127,16 @@ while True:
       'tracking_longitude': gpsd.fix.longitude,
       'tracking_heading': gpsd.fix.track,
       'tracking_speed': gpsd.fix.speed}
-      files=[
-
-      ]
+      files=[]
       headers = {}
 
       countSend_R += 1
 
       #if (config == "2" and countSend_R % 10 != 0):
-      resp = requests.request("POST", url, headers=headers, data=payload, files=files)
+      resp = requests.request("POST", url, headers=headers, data=payload, files=files , timeout=(2,2))
       #else:
         #resp = requests.get(gps_url+'?ambulance_id={0}&tracking_latitude={1:.6f}&tracking_longitude={2:.6f}&tracking_speed={3:.2f}&tracking_heading={4}'.format(id,gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,gpsd.fix.track), timeout=2.001)
-  
-        
-      #
+
       #print ('status_code ' , resp.status_code)
       if(resp.status_code != 200 ):
         print 'status_code ' , resp.status_code
@@ -155,7 +151,7 @@ while True:
           GPIO.output(27,True)
       else:
         print 'respError'
-        countError+=1
+        countError += 1
 
     except:
       print 'exceptError'
@@ -176,17 +172,17 @@ while True:
       GPIO.output(22,False)
     break
 
-  if time.time() > timeReset:
-    gpsdThreadOut = True
-    print "TimeReset"
-    for count in range(0, 2):
-      time.sleep(0.5)
-      GPIO.output(22,True)
-      time.sleep(0.5)
-      GPIO.output(22,False)
-    break
+  #if time.time() > timeReset:
+  #  gpsdThreadOut = True
+  #  print "TimeReset"
+  #  for count in range(0, 2):
+  #    time.sleep(0.5)
+  #    GPIO.output(22,True)
+  #    time.sleep(0.5)
+  #    GPIO.output(22,False)
+  #  break
     
-  if countError > 20:
+  if countError > 50:
     gpsdThreadOut = True
     print "countError"
     for count in range(0, 10):

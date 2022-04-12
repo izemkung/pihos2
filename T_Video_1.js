@@ -5,7 +5,7 @@ var isError = 0;
 
 (function loop() {
     if (isError == 0) {
-        PythonShell.run('test1.py', {args: ['-i 1']}, function (err, results) 
+        PythonShell.run('delay.py', {args: ['-i 1']}, function (err, results) 
         {
           if (err)
           { 

@@ -9,6 +9,8 @@ import serial
 import fcntl
 import struct
 import subprocess
+import threading
+from gps import *
 
 REMOTE_SERVER = "www.google.com"
 flagDetectHW_GPS = False
@@ -17,6 +19,10 @@ version_config = "34"
 IMEI_CONFIG = ""
 CAM_COUNT = ""
 serModem = ""
+
+GPSPortUC20 = '/dev/ttyUSB1'
+GPSPortHW =  '/dev/ttyAMA0'
+gpsdProcess = ""
 
 def checkCamera():
     global CAM_COUNT
@@ -59,8 +65,20 @@ def get_ip_address(ifname):
     )[20:24])
 
 def SendAlartFun(channel):
+    global gpsd
     try:
-        resp = requests.get(nti_url+'?ambulance_id={0}'.format(id), timeout=3.001)
+        url = "http://27.254.149.188:5000/api/crash/postAmbulanceCrashNotify"
+        payload={'ambulance_id': id,
+        'tracking_latitude': gpsd.fix.latitude,
+        'tracking_longitude': gpsd.fix.longitude,
+        'tracking_heading': gpsd.fix.track,
+        'tracking_speed': gpsd.fix.speed}
+        files=[]
+        headers = {}
+
+        #if (config == "2" and countSend_R % 10 != 0):
+        resp = requests.request("POST", url, headers=headers, data=payload, files=files , timeout=(2,2))
+        
         print ('content     ' + resp.content) 
     except:
         print 'SendAlartFun Connection lost'
@@ -69,6 +87,7 @@ def SendStatusFun(message):
     global IMEI_CONFIG
     global CAM_COUNT
     global serModem
+    global flagDetectHW_GPS
     #try:
     serModem.flushInput()
     serModem.flushOutput()
@@ -128,9 +147,9 @@ def SendStatusFun(message):
     
 
     if flagDetectHW_GPS == True:
-        api += '_HW_Sv3.2_'
+        api += '_HW_Sv3.2.1_'
     else:
-        api += '_UC_Sv3.2_'
+        api += '_UC_Sv3.2.1_'
 
     api += version_config
 
@@ -145,27 +164,63 @@ def SendStatusFun(message):
         #print 'SendStatusFun Connection lost'
     return False
 
-def SetDeviceGPSisHW(section):
-    try:
-        if section == True:
-            print "gpsd > GPS HW"
-            os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(GPSPortHW))
-        else:
-            print "gpsd > GPS UC20"
-            port = FindGPS_SerialModem()
-            if(port == 'error'):
-                port = GPSPortUC20
-            os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(port))
-        
-        time.sleep(1)
-        os.system('sudo systemctl enable gpsd.socket')
-        os.system('sudo systemctl start gpsd.socket')
+def SetDeviceGPSisHW():
+    global flagDetectHW_GPS
+    os.system('sudo systemctl stop gpsd.socket')
+    os.system('sudo systemctl disable gpsd.socket')
+    time.sleep(1)
+    os.system('sudo systemctl stop gpsd.socket')
+    os.system('sudo systemctl disable gpsd.socket')
+    os.system('sudo killall gpsd')
 
-        os.system('sudo systemctl enable gpsd.socket')
-        os.system('sudo systemctl start gpsd.socket')
-    except :
-        print "Init gpsd Error"
-        
+    my_file_path =  "/home/pi/pihos/connect.sh"
+    my_file = open(my_file_path)
+    string_list = my_file.readlines()
+    my_file.close()
+    flagNotfound = True
+    for idx in range(0, len(string_list)):
+        line = string_list[idx]
+        if '/dev/tty' in line:
+            flagNotfound = False
+            first_idx = line.find('/dev/tty')
+            currentGPSInterface = line[first_idx: line.find('-F')-1]
+            print('current GPS Interface : '+ currentGPSInterface)
+            if (currentGPSInterface == '/dev/ttyAMA0'):
+                #print("Update GPS Interface "+currentGPSInterface+" > "+ interface)
+                interface = FindGPS_SerialModem()
+                string_list[idx] = 'sudo gpsd {0} -F /var/run/gpsd.sock\n'.format(interface)
+                print("Update GPS Interface {0}".format(interface))
+            else :
+                string_list[idx] = 'sudo gpsd {0} -F /var/run/gpsd.sock\n'.format(GPSPortHW) 
+                print("Update GPS Interface {0}".format(GPSPortHW))
+
+            my_file = open(my_file_path, "w")
+            new_file_contents = "".join(string_list)
+            my_file.write(new_file_contents)
+            my_file.close()
+            print("GPS Interface Chang Reboot...")
+            os.system('sudo reboot')
+
+
+gpsd = None 
+gpsdThreadOut = False 
+
+class GpsPoller(threading.Thread):
+  def __init__(self):
+    threading.Thread.__init__(self)
+    global gpsd #bring it in scope
+    gpsd = gps(mode=WATCH_ENABLE) #starting the stream of info
+    self.current_value = None
+    self.running = True #setting the thread running to true
+ 
+  def run(self):
+    global gpsd
+    global gpsdThreadOut
+    while gpsp.running:
+      gpsd.next() #this will continue to loop and grab EACH set of gpsd info to clear the buffer
+      if(gpsdThreadOut):
+        break
+
 def ConfigSectionMap(section):
     dict1 = {}
     options = Config.options(section)
@@ -207,7 +262,7 @@ def FindSerialModem():
 
 def FindGPS_SerialModem():
     _port = 'Error'
-    for num in range(0, 4):
+    for num in range(0, 5):
         _port = '/dev/ttyUSB{0}'.format(num)
         try:
             ser = serial.Serial(_port,115200, timeout=1.0 , rtscts=True, dsrdtr=True)
@@ -226,9 +281,125 @@ def FindGPS_SerialModem():
 
     return _port
 
+def gpsCheck():
+    print ('GPS Checking')
+    global gpsp
+    global flagDetectHW_GPS
+    #print 'altitude (m)' , gpsd.fix.altitude
+    #print 'eps         ' , gpsd.fix.eps
+    #print 'epx         ' , gpsd.fix.epx
+    #print 'epv         ' , gpsd.fix.epv
+    #print 'ept         ' , gpsd.fix.ept
+    #print 'speed (m/s) ' , gpsd.fix.speed
+    #print 'climb       ' , gpsd.fix.climb
+    #print 'track       ' , gpsd.fix.track
+    #print 'mode        ' , gpsd.fix.mode
+    
+    #print 'lat         ' , gpsd.fix.latitude
+    #print 'long        ' , gpsd.fix.longitude
+    if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0' and str(gpsd.fix.track) != 'nan' and str(gpsd.fix.speed) != 'nan':
+        print ('GPS OK')
+        return True
+    else:
+        print ('Set new GPS Interface')
+        SetDeviceGPSisHW()
+        return False
+
+def updateGPS():
+    global flagDetectHW_GPS
+    print ('update GPS Interface ')
+    #config_path = '/home/pi/gps_configure.cfg'
+    #gps_string_list = ''
+    #interface=''
+
+    #if os.path.exists(config_path) == False:
+    #    my_file = open(config_path, "w")
+    #    string_list = [GPSPortHW+'\n','\n']
+    #    new_file_contents = "".join(string_list)
+    #    my_file.write(new_file_contents)
+    #    my_file.close()
+
+    #file_exists = os.path.exists(config_path)
+    #if(file_exists):
+    #    print("Config found!!")
+    #    gps_config_file = open(config_path)
+    #    gps_string_list = gps_config_file.readlines()
+    #    gps_config_file.close()
+    #    for idx in range(0, len(gps_string_list)):
+    #        line = gps_string_list[idx]
+    #        if '/dev' in line:
+    #            first_idx = line.find('/dev')
+    #            interface = line[first_idx:].strip('\n')
+    #            print('config Interface : '+ interface)
+    #else:
+    #    print("Config not found!!")
+    #    return
+
+    my_file_path =  "/home/pi/pihos/connect.sh"
+    my_file = open(my_file_path)
+    string_list = my_file.readlines()
+    my_file.close()
+    flagNotfound = True
+    for idx in range(0, len(string_list)):
+        line = string_list[idx]
+        if '/dev/tty' in line:
+            flagNotfound = False
+            first_idx = line.find('/dev/tty')
+            currentGPSInterface = line[first_idx: line.find('-F')-1]
+            print('current GPS Interface : '+ currentGPSInterface)
+            if (currentGPSInterface == '/dev/ttyAMA0'):
+                flagDetectHW_GPS = True
+            #if( currentGPSInterface != interface ):
+                #print("Update GPS Interface "+currentGPSInterface+" > "+ interface)
+                #string_list[idx] = 'sudo gpsd {0} -F /var/run/gpsd.sock\n'.format(interface)
+            
+                #my_file = open(my_file_path, "w")
+                #new_file_contents = "".join(string_list)
+                #my_file.write(new_file_contents)
+                #my_file.close()
+                #print("Update GPS")
+         
+            #else:
+                #print("Current GPS = config GPS : " + interface)
+    if (flagNotfound == True):
+        #string_list.append('sudo systemctl enable gpsd.socket\n')
+        #string_list.append('sudo systemctl start gpsd.socket\n')
+        #string_list.append('sudo gpsd {0} -F /var/run/gpsd.sock\n'.format(interface))
+        #string_list.append('sudo systemctl enable gpsd.socket\n')
+        #string_list.append('sudo systemctl start gpsd.socket\n')
+        my_file = open(my_file_path, "w")
+        new_file_contents = "".join(string_list)
+        my_file.write('cd /\n')
+        my_file.write('sudo systemctl stop gpsd.socket\n')
+        my_file.write('sudo systemctl disable gpsd.socket\n')
+        my_file.write('sudo gpsd {0} -F /var/run/gpsd.sock\n'.format(GPSPortHW))
+        my_file.write('sudo systemctl enable gpsd.socket\n')
+        my_file.write('sudo systemctl start gpsd.socket\n')
+        my_file.write(new_file_contents)
+        my_file.close()
+        print("Add GPS Interface to Startup")
+        print("Reboot!!")
+        os.system('sudo reboot')
+
+
 print "Start GPIO"
 
+try:
+  os.system('sudo chmod +x /home/pi/pihos/connect.sh')
+  os.system('sudo timedatectl set-ntp True')
+except :
+  print "Stop gpsd Error"
 
+updateGPS()
+#while (SetDeviceGPSisHW(True) == False):
+#time.sleep(5)
+#========================Start program
+try:
+    gpsp = GpsPoller() # create the thread
+    gpsp.start()
+except:
+    print "GPS thread not Start Reboot"
+    os.system('sudo reboot')
 #=========================GET IMEI UC20 
 time.sleep(5)
 try:
@@ -256,52 +427,13 @@ try:
     
 
 except:
-    print "Get IMEI from Serial ttyUSB2 Error"
-    time.sleep(10)
+    print "Get IMEI from Serial USB Interface Error"
+    time.sleep(5)
     exit()
     #os.system('sudo reboot')
 time.sleep(1)
 
-#=========================Detect HW GPS
-GPSPortUC20 = '/dev/ttyUSB1'
-GPSPortHW =  '/dev/ttyAMA0'
 
-try:
-  os.system('sudo chmod +x /home/pi/pihos/connect.sh')
-  os.system('sudo timedatectl set-ntp True')
-  
-  os.system('sudo systemctl stop gpsd.socket')
-  os.system('sudo systemctl disable gpsd.socket')
-  #os.system('sudo systemctl enable gpsd.socket')
-  #os.system('sudo systemctl start gpsd.socket')
-  os.system('sudo systemctl stop gpsd.socket')
-  os.system('sudo systemctl disable gpsd.socket')
-except :
-  print "Stop gpsd Error"
-
-time.sleep(5)
-#==============================HW Serial GPS Detection==============================
-try:
-    serDetec = serial.Serial(GPSPortHW, 9600 , timeout=1.0 , rtscts=True, dsrdtr=True)
-    serDetec.flushInput()
-    serDetec.flushOutput()
-    time.sleep(1)
-    for num in range(0, 20):
-        #time.sleep(0.5)
-        bufemi = serDetec.readline()
-        print bufemi
-        if bufemi[0] == '$' and bufemi[1] == 'G':
-            flagDetectHW_GPS = True
-            print "===========HW GPS Detect==========="
-            break
-    serDetec.close()
-except:
-    print "Open Serial HW Error"
-    #time.sleep(10)
-    #os.system('sudo reboot')
-
-
-SetDeviceGPSisHW(flagDetectHW_GPS)
 
 #sudo gpsd /dev/ttyUSB1 -F /var/run/gpsd.sock
 #input2 = 0
@@ -427,9 +559,12 @@ else:
  #   os.system('sudo mkdir /home/pi/usb/vdo/ch0')
   #  os.system('sudo mkdir /home/pi/usb/vdo/ch1')
 
+
+
 print "Wait Internet.."  
 while (internet_on() == False):
     time.sleep(20)
+   
 print "Internet..OK!!!"  
 
 checkCamera()
@@ -471,7 +606,7 @@ sendStart = False
 current_time = time.time()
 timeout2 = time.time()
 timeStart = time.time()
-timeout = time.time() + 60
+timeout = time.time() + 120
 while True:
     time.sleep(2)
     current_time = time.time()
@@ -504,7 +639,12 @@ while True:
         serModem.write('AT+QGPS=1\r')
         for num in range(0, 5):
             bufemi = serModem.readline()
-        print "Set Starting GPS"  
+        print "Set Starting GPS" 
+        gpsCheck() 
 
+gpsdThreadOut = True 
+gpsp.running = False
+time.sleep(2)
+gpsp.join() # wait for the thread to finish what it's doing
 serModem.close()
 GPIO.cleanup()
