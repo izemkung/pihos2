@@ -23,6 +23,7 @@ serModem = ""
 GPSPortUC20 = '/dev/ttyUSB1'
 GPSPortHW =  '/dev/ttyAMA0'
 gpsdProcess = ""
+gpsCheck = 0
 
 id = ""
 
@@ -221,6 +222,8 @@ class GpsPoller(threading.Thread):
     global gpsdThreadOut
     while gpsp.running:
       gpsd.next() #this will continue to loop and grab EACH set of gpsd info to clear the buffer
+
+
       if(gpsdThreadOut):
         break
 
@@ -288,6 +291,7 @@ def gpsCheck():
     print ('GPS Checking')
     global gpsp
     global flagDetectHW_GPS
+    global gpsCheck
     #print 'altitude (m)' , gpsd.fix.altitude
     #print 'eps         ' , gpsd.fix.eps
     #print 'epx         ' , gpsd.fix.epx
@@ -301,11 +305,16 @@ def gpsCheck():
     #print 'lat         ' , gpsd.fix.latitude
     #print 'long        ' , gpsd.fix.longitude
     if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0' and str(gpsd.fix.track) != 'nan' and str(gpsd.fix.speed) != 'nan':
-        print ('GPS OK')
+        print ('GPS CHECK OK')
+        gpsCheck = 0
         return True
     else:
-        print ('Set new GPS Interface')
+        gpsCheck += 1
+        print ('GPS CHECK OK')
+        if(gpsCheck > 2):
+            print ('Set new GPS Interface')
         SetDeviceGPSisHW()
+
         return False
 
 def updateGPS():
@@ -380,7 +389,7 @@ def updateGPS():
         my_file.write('sudo systemctl start gpsd.socket\n')
         my_file.write(new_file_contents)
         my_file.close()
-        print("Add GPS Interface to Startup")
+        print("Add GPS HW Interface to Startup")
         print("Reboot!!")
         os.system('sudo reboot')
 

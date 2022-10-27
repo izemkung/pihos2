@@ -127,7 +127,7 @@ if floderOk == 6:
 else:
     flagUSBOk = False
 
-flagUSBOk = False
+#flagUSBOk = False #ennable VDO
 
 print("USB > "+str(flagUSBOk) + " Time VDO > "+str(timevdo)) 
 os.environ['TZ'] = 'Asia/Bangkok'
@@ -274,9 +274,9 @@ while (True):
     current_time_T = time.time() * 1000
     
     if flagPic == True:
-        if current_time_T - last_time_T > 500:
+        if current_time_T - last_time_T > 1000:
             last_time_T = current_time_T
-            flagPic = False
+            
             #GPIO.output(17,True)
 
             #url = "http://202.183.192.154:5000/api/tracking/postAmbulanceImageUpload"
@@ -318,7 +318,7 @@ while (True):
             #]
 
             
-            #flagPic = False
+            flagPic = False
             try:
                 GPIO.output(17,False)
                 r = 'error'
@@ -373,7 +373,7 @@ while (True):
 print("Time > "+str(timevdo) + " m NumPic > "+str(countPic_T)) 
 KillPs = True
 
-    #timeVDO
+#timeVDO
 # Release everything if job is finished
 
 print("Process time > "+str((current_time/1000) - startTime)+" sec")
