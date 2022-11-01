@@ -309,7 +309,7 @@ def gpsCheck():
         gpsCheck = 0
         return True
     else:
-        gpsCheck += 1
+        gpsCheck = gpsCheck + 1
         print ('GPS CHECK OK')
         if(gpsCheck > 2):
             print ('Set new GPS Interface')
