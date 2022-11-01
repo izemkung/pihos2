@@ -23,7 +23,7 @@ serModem = ""
 GPSPortUC20 = '/dev/ttyUSB1'
 GPSPortHW =  '/dev/ttyAMA0'
 gpsdProcess = ""
-gpsCheck = 0
+_gpsCheck = 0
 
 id = ""
 
@@ -291,7 +291,7 @@ def gpsCheck():
     print ('GPS Checking')
     global gpsp
     global flagDetectHW_GPS
-    global gpsCheck
+    global _gpsCheck
     #print 'altitude (m)' , gpsd.fix.altitude
     #print 'eps         ' , gpsd.fix.eps
     #print 'epx         ' , gpsd.fix.epx
@@ -306,12 +306,12 @@ def gpsCheck():
     #print 'long        ' , gpsd.fix.longitude
     if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0' and str(gpsd.fix.track) != 'nan' and str(gpsd.fix.speed) != 'nan':
         print ('GPS CHECK OK')
-        gpsCheck = 0
+        _gpsCheck = 0
         return True
     else:
-        gpsCheck = gpsCheck + 1
+        _gpsCheck = _gpsCheck + 1
         print ('GPS CHECK OK')
-        if(gpsCheck > 2):
+        if(_gpsCheck > 2):
             print ('Set new GPS Interface')
         SetDeviceGPSisHW()
 
