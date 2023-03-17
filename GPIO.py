@@ -151,9 +151,9 @@ def SendStatusFun(message):
     
 
     if flagDetectHW_GPS == True:
-        api += '_HW_Sv3.2.1_'
+        api += '_HW_Sv3.2.2_'
     else:
-        api += '_UC_Sv3.2.1_'
+        api += '_UC_Sv3.2.2_'
 
     api += version_config
 
