@@ -34,10 +34,14 @@ def updateAPN():
                 first_idx = line.find('=') + 1
                 apnUser = line[first_idx:].strip('\n')
                 print('apnUser : '+ apnUser)
+            else :
+                os.system('sudo rm /home/pi/apn_configure.cfg')
             if 'apnPass=' in line:
                 first_idx = line.find('=') + 1
                 apnPass = line[first_idx:].strip('\n')
                 print('apnPass : '+ apnPass)
+            else :
+                os.system('sudo rm /home/pi/apn_configure.cfg')
     else:
         print("Config not found!!")
         return
