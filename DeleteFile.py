@@ -34,13 +34,13 @@ def updateAPN():
                 first_idx = line.find('=') + 1
                 apnUser = line[first_idx:].strip('\n')
                 print('apnUser : '+ apnUser)
-            else :
-                os.system('sudo rm /home/pi/apn_configure.cfg')
+
             if 'apnPass=' in line:
                 first_idx = line.find('=') + 1
                 apnPass = line[first_idx:].strip('\n')
                 print('apnPass : '+ apnPass)
-            else :
+            
+            if 'anp' in line:
                 os.system('sudo rm /home/pi/apn_configure.cfg')
     else:
         print("Config not found!!")
@@ -98,11 +98,6 @@ if vergit != vercurrent and len(vercurrent) == len(vergit):
 #continue
 
 
-
-#if os.path.exists("/home/pi/usb/vdo/ch0") == False:
-os.system('sudo mount /dev/sda1 /home/pi/usb')
-time.sleep(1)
-
 #================================APN UPDATE==================================
 if os.path.exists("/home/pi/apn_configure.cfg") == False:
     os.system('sudo cp /home/pi/pihos/apn_configure.cfg /home/pi/apn_configure.cfg')
@@ -115,6 +110,9 @@ if os.path.exists("/home/pi/usb/apn_configure.cfg") == True:
 updateAPN()
 
 
+#if os.path.exists("/home/pi/usb/vdo/ch0") == False:
+os.system('sudo mount /dev/sda1 /home/pi/usb')
+time.sleep(1)
 
 statvfs = os.statvfs('/home/pi/usb')
 size = (statvfs.f_frsize * statvfs.f_blocks) / 1073741824.00
