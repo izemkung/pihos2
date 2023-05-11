@@ -17,7 +17,7 @@ def updateAPN():
     file_exists = os.path.exists(config_path)
     apn_string_list = ''
     apn=''
-    anpUser=''
+    apnUser=''
     apnPass=''
     if(file_exists):
         print("Config found!!")
@@ -30,10 +30,10 @@ def updateAPN():
                 first_idx = line.find('=') + 1
                 apn = line[first_idx:].strip('\n')
                 print('APN : '+ apn)
-            if 'anpUser=' in line:
+            if 'apnUser=' in line:
                 first_idx = line.find('=') + 1
-                anpUser = line[first_idx:].strip('\n')
-                print('anpUser : '+ anpUser)
+                apnUser = line[first_idx:].strip('\n')
+                print('apnUser : '+ apnUser)
             if 'apnPass=' in line:
                 first_idx = line.find('=') + 1
                 apnPass = line[first_idx:].strip('\n')
@@ -150,6 +150,7 @@ try:
                 os.system('sudo mount /dev/sda1 -o remount,rw')
                 os.system('sudo rm -r /home/pi/usb/pic/ch0')
                 os.system('sudo mkdir /home/pi/usb/pic/ch0')
+                time.sleep(10)
 
 
         #print subprocess.check_output('rm -r /home/pi/usb/pic/ch0/*', shell=True)    
@@ -173,6 +174,7 @@ try:
                 os.system('sudo mount /dev/sda1 -o remount,rw')
                 os.system('sudo rm -r /home/pi/usb/pic/ch1')
                 os.system('sudo mkdir /home/pi/usb/pic/ch1')
+                time.sleep(10)
         #print subprocess.check_output('rm -r /home/pi/usb/pic/ch1/*', shell=True)    
         print 'Delete {0} file in pic/ch1/ '.format(numDel)
         
@@ -223,7 +225,7 @@ try:
             except:
                 print 'Delete VDO 0 re mount'
                 os.system('sudo mount /dev/sda1 -o remount,rw')           
-            
+                time.sleep(10)
             
 
             #count = 0;
@@ -240,6 +242,7 @@ try:
             except:
                 print 'Delete VDO 1 re mount'
                 os.system('sudo mount /dev/sda1 -o remount,rw') 
+                time.sleep(10)
             
 
             statvfs = os.statvfs('/home/pi/usb')
