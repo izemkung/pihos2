@@ -71,7 +71,7 @@ def SendAlartFun(channel):
     global gpsd
     global id
     try:
-        url = "http://188.212.159.51:5000/api/crash/postAmbulanceCrashNotify"
+        url = "http://117.18.126.118:5000/api/crash/postAmbulanceCrashNotify"
         payload={'ambulance_id': id,
         'tracking_latitude': gpsd.fix.latitude,
         'tracking_longitude': gpsd.fix.longitude,
