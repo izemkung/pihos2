@@ -160,9 +160,9 @@ def SendStatusFun(message):
     checkCamera()
     api += CAM_COUNT
     print ('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message))
-    resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message), timeout=3.001)
+    #resp = requests.get('http://188.166.197.107:8001?id={0}&ip={1}&sid={2}&imei={3}&api={4}&msg={5}'.format(id,ip,SID[1],IMEI[0],api,message), timeout=3.001)
     
-    print ('content     ' + resp.content) 
+    #print ('content     ' + resp.content) 
     return True
     #except:
         #print 'SendStatusFun Connection lost'

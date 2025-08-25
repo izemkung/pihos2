@@ -39,6 +39,7 @@ except:
 timevdo = ConfigSectionMap('Profile')['timevdo']
 timepic = ConfigSectionMap('Profile')['timepic']
 gps_url = ConfigSectionMap('Profile')['gps_api']
+#sam.aocopt.com
 url = "http://117.18.126.118:5000/api/tracking/postAmbulanceTracking"
 pic_url = ConfigSectionMap('Profile')['pic_api']
 version = 30
