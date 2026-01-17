@@ -24,6 +24,7 @@ GPSPortUC20 = '/dev/ttyUSB1'
 GPSPortHW =  '/dev/ttyAMA0'
 gpsdProcess = ""
 _gpsCheck = 0
+_gpsEverWorked = False  # Track if GPS ever worked on current interface
 
 id = ""
 
@@ -307,14 +308,18 @@ def gpsCheck():
     if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0' and str(gpsd.fix.track) != 'nan' and str(gpsd.fix.speed) != 'nan':
         print ('GPS CHECK OK')
         _gpsCheck = 0
+        _gpsEverWorked = True  # GPS worked, remember this interface is correct
         return True
     else:
         _gpsCheck = _gpsCheck + 1
-        print ('GPS CHECK OK')
-        if(_gpsCheck > 2):
-            print ('Set new GPS Interface')
-        SetDeviceGPSisHW()
-
+        print ('GPS CHECK FAILED, count: ' + str(_gpsCheck))
+        # Only switch interface if GPS NEVER worked (interface might be wrong)
+        if(_gpsCheck > 5 and _gpsEverWorked == False):
+            print ('GPS never worked, switching interface...')
+            SetDeviceGPSisHW()
+        elif(_gpsCheck > 5):
+            print ('GPS temporarily lost, not switching interface')
+            _gpsCheck = 0  # Reset counter
         return False
 
 def updateGPS():
