@@ -342,7 +342,7 @@ while (True):
                         time.sleep(0.2)
                     
                     if(r.status_code == 200 ):
-                        #time.sleep(0.2)
+                        time.sleep(0.2)
                         GPIO.output(17,True)
                         countPic_T += 1
                         print("Send > "+str(countPic_T)+" FrameRate > "+str((current_time_T - prev_time_T))+" ms" + " Run Time > "+str((current_time_T/1000) - startTime) )
