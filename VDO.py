@@ -34,7 +34,7 @@ class Timeout():
         raise Timeout.TimeoutException()
 
     def __init__(self, timeout=10):
-        self.timeout = 10
+        self.timeout = timeout
         signal.signal(signal.SIGALRM, Timeout._timeout)
 
     def __enter__(self):
@@ -275,6 +275,7 @@ while (True):
     
     if flagPic == True:
         if current_time_T - last_time_T > 1000:
+            prev_time_T = last_time_T
             last_time_T = current_time_T
             
             #GPIO.output(17,True)
@@ -282,12 +283,13 @@ while (True):
             #url = "http://202.183.192.154:5000/api/tracking/postAmbulanceImageUpload"
             countPic_R += 1
             #if (config == "2" and countPic_R % 20 != 0):
-            url = "http://117.18.126.118:5000/api/snapshot/postAmbulanceImageUpload"
-            payload={ 
+            url = "http://141.98.19.62:5000/api/snapshot/postAmbulanceImageUpload"
+       
+            payload={
             'ambulance_id':  str(id),
             'ambulance_box_code': str(id),
             'images_count': '2'
-            } 
+            }
             jpg_as_text0 = jpg_as_text0.tostring()
             jpg_as_text1 = jpg_as_text1.tostring()
             files=[
@@ -343,7 +345,7 @@ while (True):
                         #time.sleep(0.2)
                         GPIO.output(17,True)
                         countPic_T += 1
-                        print("Send > "+str(countPic_T)+" FreamRate > "+str((current_time_T - last_time_T))+" ms" + "Run Time > "+str((current_time_T/1000) - startTime) ) 
+                        print("Send > "+str(countPic_T)+" FrameRate > "+str((current_time_T - prev_time_T))+" ms" + " Run Time > "+str((current_time_T/1000) - startTime) )
                     
             except:
                 #print('timeout')
@@ -376,7 +378,7 @@ KillPs = True
 #timeVDO
 # Release everything if job is finished
 
-print("Process time > "+str((current_time/1000) - startTime)+" sec")
+print("Process time > "+str((current_time_T/1000) - startTime)+" sec")
 
 GPIO.output(17,True)
 GPIO.cleanup()
